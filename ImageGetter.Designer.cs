@@ -39,6 +39,11 @@
             this.label14 = new System.Windows.Forms.Label();
             this.plex_id_txt = new System.Windows.Forms.TextBox();
             this.panel3 = new System.Windows.Forms.Panel();
+            this.transfer_btn = new System.Windows.Forms.Button();
+            this.lon_center_txt = new System.Windows.Forms.TextBox();
+            this.lat_center_txt = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
             this.zone_sw_lat = new System.Windows.Forms.TextBox();
             this.label13 = new System.Windows.Forms.Label();
             this.get_info_btn = new System.Windows.Forms.Button();
@@ -51,11 +56,6 @@
             this.label8 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
             this.out_img = new System.Windows.Forms.PictureBox();
-            this.lon_center_txt = new System.Windows.Forms.TextBox();
-            this.lat_center_txt = new System.Windows.Forms.TextBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.transfer_btn = new System.Windows.Forms.Button();
             this.statusStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.panel3.SuspendLayout();
@@ -82,6 +82,7 @@
             this.statusStrip1.Size = new System.Drawing.Size(343, 22);
             this.statusStrip1.TabIndex = 5;
             this.statusStrip1.Text = "statusStrip1";
+            this.statusStrip1.MouseEnter += new System.EventHandler(this.ImageGetter_MouseEnter);
             // 
             // status_strip
             // 
@@ -119,6 +120,7 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(343, 28);
             this.panel1.TabIndex = 3;
+            this.panel1.MouseEnter += new System.EventHandler(this.ImageGetter_MouseEnter);
             // 
             // label14
             // 
@@ -162,6 +164,52 @@
             this.panel3.Name = "panel3";
             this.panel3.Size = new System.Drawing.Size(343, 173);
             this.panel3.TabIndex = 52;
+            this.panel3.MouseEnter += new System.EventHandler(this.ImageGetter_MouseEnter);
+            // 
+            // transfer_btn
+            // 
+            this.transfer_btn.Enabled = false;
+            this.transfer_btn.Location = new System.Drawing.Point(240, 135);
+            this.transfer_btn.Name = "transfer_btn";
+            this.transfer_btn.Size = new System.Drawing.Size(93, 35);
+            this.transfer_btn.TabIndex = 3;
+            this.transfer_btn.Text = "Передать в размещение";
+            this.transfer_btn.UseVisualStyleBackColor = true;
+            this.transfer_btn.Click += new System.EventHandler(this.transfer_btn_Click);
+            // 
+            // lon_center_txt
+            // 
+            this.lon_center_txt.Location = new System.Drawing.Point(117, 151);
+            this.lon_center_txt.Name = "lon_center_txt";
+            this.lon_center_txt.ReadOnly = true;
+            this.lon_center_txt.Size = new System.Drawing.Size(82, 20);
+            this.lon_center_txt.TabIndex = 52;
+            // 
+            // lat_center_txt
+            // 
+            this.lat_center_txt.Location = new System.Drawing.Point(12, 150);
+            this.lat_center_txt.Name = "lat_center_txt";
+            this.lat_center_txt.ReadOnly = true;
+            this.lat_center_txt.Size = new System.Drawing.Size(83, 20);
+            this.lat_center_txt.TabIndex = 51;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(115, 135);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(88, 13);
+            this.label1.TabIndex = 54;
+            this.label1.Text = "Долгота центра";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(9, 135);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(83, 13);
+            this.label2.TabIndex = 53;
+            this.label2.Text = "Широта центра";
             // 
             // zone_sw_lat
             // 
@@ -273,50 +321,7 @@
             this.out_img.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.out_img.TabIndex = 53;
             this.out_img.TabStop = false;
-            // 
-            // lon_center_txt
-            // 
-            this.lon_center_txt.Location = new System.Drawing.Point(117, 151);
-            this.lon_center_txt.Name = "lon_center_txt";
-            this.lon_center_txt.ReadOnly = true;
-            this.lon_center_txt.Size = new System.Drawing.Size(82, 20);
-            this.lon_center_txt.TabIndex = 52;
-            // 
-            // lat_center_txt
-            // 
-            this.lat_center_txt.Location = new System.Drawing.Point(12, 150);
-            this.lat_center_txt.Name = "lat_center_txt";
-            this.lat_center_txt.ReadOnly = true;
-            this.lat_center_txt.Size = new System.Drawing.Size(83, 20);
-            this.lat_center_txt.TabIndex = 51;
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(115, 135);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(88, 13);
-            this.label1.TabIndex = 54;
-            this.label1.Text = "Долгота центра";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(9, 135);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(83, 13);
-            this.label2.TabIndex = 53;
-            this.label2.Text = "Широта центра";
-            // 
-            // transfer_btn
-            // 
-            this.transfer_btn.Location = new System.Drawing.Point(240, 135);
-            this.transfer_btn.Name = "transfer_btn";
-            this.transfer_btn.Size = new System.Drawing.Size(93, 35);
-            this.transfer_btn.TabIndex = 3;
-            this.transfer_btn.Text = "Передать в размещение";
-            this.transfer_btn.UseVisualStyleBackColor = true;
-            this.transfer_btn.Click += new System.EventHandler(this.transfer_btn_Click);
+            this.out_img.MouseEnter += new System.EventHandler(this.ImageGetter_MouseEnter);
             // 
             // ImageGetter
             // 
@@ -331,6 +336,7 @@
             this.MinimumSize = new System.Drawing.Size(359, 606);
             this.Name = "ImageGetter";
             this.Text = "Получение изображения";
+            this.MouseEnter += new System.EventHandler(this.ImageGetter_MouseEnter);
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
             this.panel1.ResumeLayout(false);

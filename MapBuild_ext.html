@@ -1,0 +1,185 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Покрой.рф</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="http://localhost:8080/ico/anchor.ico" rel="shortcut icon" type="image/x-icon">
+    <style>
+        .container {
+            position: relative;
+            color: transparent;
+            height: 100%;
+            width: 100%;
+        }
+
+        html, body {height: 100%;width: 100%;
+            margin: 0px;
+            padding: 0px;
+        }
+
+        .top-left {
+            position: absolute;
+            top: 8px;
+            left: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <div id="map" style="width:100%;height: 100%;"></div>
+        <div id="imgborder" class="top-left"></div>
+        <div id="zoneborder" class="top-left"></div>
+        <div id="imgcenter" class="top-left"></div>
+        <div id="zonecenter" class="top-left"></div>
+        <div id="zonepixel" class="top-left"></div>
+    </div>
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
+    <script src='../dist/L.Path.Drag1.js'></script>
+    <script src="../dist/bundle.js"></script>
+    <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js'></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin="">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <link href='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css' rel='stylesheet'>
+    <script>
+        var myIconRED = L.icon({
+            iconUrl: 'http://localhost:8080/ico/tower_ico_red.png',
+            iconSize: [23, 23]
+        });
+        var myIconBLUE = L.icon({
+            iconUrl: 'http://localhost:8080/ico/tower_ico_blue.png',
+            iconSize: [23, 23]
+        });
+        var c1 = L.tileLayer('');
+        //улицы
+        var c2 = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', { subdomains: ['mt0', 'mt1', 'mt2', 'mt3'], attribution: 'Данная карта предназначена для внутреннего пользования  <a href="https://rtrs.ru/">ФГУП «Российская телевизионная и радиовещательная сеть» (РТРС)</a>' });
+        //terra
+        var c3 = L.tileLayer('http://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}', { subdomains: ['mt0', 'mt1', 'mt2', 'mt3'], attribution: 'Данная карта предназначена для внутреннего пользования  <a href="https://rtrs.ru/">ФГУП «Российская телевизионная и радиовещательная сеть» (РТРС)</a>' });
+        //hybrid
+        var c4 = L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', { subdomains: ['mt0', 'mt1', 'mt2', 'mt3'], attribution: 'Данная карта предназначена для внутреннего пользования  <a href="https://rtrs.ru/">ФГУП «Российская телевизионная и радиовещательная сеть» (РТРС)</a>' });
+        //спутник
+        var c5 = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', { subdomains: ['mt0', 'mt1', 'mt2', 'mt3'], attribution: 'Данная карта предназначена для внутреннего пользования  <a href="https://rtrs.ru/">ФГУП «Российская телевизионная и радиовещательная сеть» (РТРС)</a>' });
+        var map = L.map('map'); //,{ fullscreenControl: true}, layers: [c5, c4, c3, c2, c1] });//.setView([64.5708852, 107.9595965], 4);
+        var corner1 = L.latLng(SWLAT, SWLON),
+            corner2 = L.latLng(NELAT, NELON),
+            bounds = L.latLngBounds(corner1, corner2);
+        var qew = bounds.getCenter();
+        var tq = new L.rectangle([bounds]);
+        var tq1 = new L.rectangle([bounds]);
+        let rect = tq.getLatLngs();
+        let rect1 = tq1.getLatLngs();
+
+        //var offsets = []
+        //for (var i = 0; i < rect.length; i++) {
+        //    var point = [];
+        //    point.push(rect[i].lat - qew.lat);
+        //    point.push(rect[i].lng - qew.lng);
+        //    offsets.push(point);
+        //}
+
+        var flag_zn = _DRAG_ZONE_;
+        var flag_img = _DRAG_IMG_;
+        var flag_img_init = _IMG_PATH_;
+
+        var flag_marker = _MARKER_;
+        var flag_squere = _SQUARE_;
+
+
+        var square = new L.Polygon(rect, { draggable: flag_zn, color: "_COLOR_", fillColor: "_COLOR_", weight: 2 });
+        document.getElementById("imgborder").textContent = "imgborder=" + square.getBounds()._southWest.lat + ";" + square.getBounds()._southWest.lng + "!" + square.getBounds()._northEast.lat + ";" + square.getBounds()._northEast.lng;
+        document.getElementById("imgcenter").textContent = "imgcenter=" + qew.lat + ";" + qew.lng;
+        document.getElementById("zoneborder").textContent = "zoneborder=" + square.getBounds()._southWest.lat + ";" + square.getBounds()._southWest.lng + "!" + square.getBounds()._northEast.lat + ";" + square.getBounds()._northEast.lng;
+        document.getElementById("zonecenter").textContent = "zonecenter=" + qew.lat + ";" + qew.lng;
+        var pg_sq = new L.Polygon(rect, { draggable: flag_zn, opacity: 0, fillOpacity: 0 });
+        var marker = L.marker(qew, { icon: _ICON_ });//.addTo(mapQ3);
+        var ii = 0;
+        if (flag_marker) marker.addTo(map);
+        var b1 = L.layerGroup([]);
+        var pgg = new L.Polygon(rect1, { draggable: flag_img, opacity: 0, fillOpacity: 0 });
+        pgg.addTo(map);//!
+        var a5 = L.imageOverlay('_PATH_', [[SWLAT, SWLON], [NELAT, NELON]], { interactive: true });
+        if (flag_img_init == true) {
+            b1 = L.layerGroup([a5]);
+        }
+        square.on('add', function () {
+            ii++;
+            if (ii > 1) {
+                pg_sq.bringToFront();
+                if (flag_zn == true) pg_sq.dragging.enable();
+            }
+        });
+        square.on('remove', function () {
+            pg_sq.dragging.disable();
+            pgg.bringToFront();
+        });
+        pgg.on('drag', function (e) {
+            a5.setBounds(pgg.getBounds());
+            document.getElementById("imgborder").textContent = "imgborder=" + pgg.getBounds()._southWest.lat + ";" + pgg.getBounds()._southWest.lng + "!" + pgg.getBounds()._northEast.lat + ";" + pgg.getBounds()._northEast.lng;
+            document.getElementById("imgcenter").textContent = "imgcenter=" + pgg.getCenter().lat + ";" + pgg.getCenter().lng;
+        });//!
+        pgg.on('dragend', function (e) {
+            a5.setBounds(pgg.getBounds());
+            document.getElementById("imgborder").textContent = "imgborder=" + pgg.getBounds()._southWest.lat + ";" + pgg.getBounds()._southWest.lng + "!" + pgg.getBounds()._northEast.lat + ";" + pgg.getBounds()._northEast.lng;
+            document.getElementById("imgcenter").textContent = "imgcenter=" + pgg.getCenter().lat + ";" + pgg.getCenter().lng;
+        });//!
+        pg_sq.on('dragend', function (e) {
+            square.redraw();
+            marker.setLatLng(pg_sq.getCenter());
+            document.getElementById("zoneborder").textContent = "zoneborder=" + pg_sq.getBounds()._southWest.lat + ";" + pg_sq.getBounds()._southWest.lng + "!" + pg_sq.getBounds()._northEast.lat + ";" + pg_sq.getBounds()._northEast.lng;
+            document.getElementById("zonecenter").textContent = "zonecenter=" + pg_sq.getCenter().lat + ";" + pg_sq.getCenter().lng;
+        });//!
+        pg_sq.on('drag', function (e) {
+            square.redraw();
+            marker.setLatLng(pg_sq.getCenter());
+            document.getElementById("zoneborder").textContent = "zoneborder=" + pg_sq.getBounds()._southWest.lat + ";" + pg_sq.getBounds()._southWest.lng + "!" + pg_sq.getBounds()._northEast.lat + ";" + pg_sq.getBounds()._northEast.lng;
+            document.getElementById("zonecenter").textContent = "zonecenter=" + pg_sq.getCenter().lat + ";" + pg_sq.getCenter().lng;
+        });//!
+        if (flag_img_init) {
+            b1.addTo(map);
+        }
+        if (flag_squere == true & flag_marker == true) {
+            var b2 = L.layerGroup([square, marker]);
+            b2.addTo(map);
+            pg_sq.addTo(map);
+        }
+        if (flag_squere == true & flag_marker == false) {
+            var b2 = L.layerGroup([square]);
+            b2.addTo(map);
+            pg_sq.addTo(map);
+        }
+        else if (flag_squere == false & flag_marker == true) {
+            var b2 = L.layerGroup([marker]);
+            b2.addTo(map);
+        }
+        else if (flag_squere == false & flag_marker == false) {
+            var b2 = L.layerGroup([]);
+        }
+
+        if (flag_img_init) {
+            var baseMaps = { "Изображение": b1, "Зона": b2 };
+        }
+        else {
+            var baseMaps = { "Зона": b2 };
+        }
+
+        var overlayMaps = { "Фон": c1, "Карта(спутник)": c5, "Карта(гибрид)": c4, "Карта(улицы)": c2, "Карта(земля)": c3 };
+        var layer_ctrl = L.control.layers(overlayMaps, baseMaps);//.addTo(map);
+        layer_ctrl.addTo(map);
+        map.setMaxBounds(qew);
+        map.setView(qew, ZOOM);
+        //mapQ3._clearControlPos();
+        var printer = L.easyPrint({
+            hidden: true,
+            sizeModes: ['Current'],
+            filename: 'myMap',
+            exportOnly: true,
+            hideControlContainer: true
+        }).addTo(map);
+        c4.addTo(map);
+        function manualPrint() {
+            printer.printMap('CurrentSize', 'MyManualPrint')
+        }
+    </script>
+</body>
+</html>

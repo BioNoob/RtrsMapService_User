@@ -21,10 +21,13 @@ namespace RtrsMapService_User
     public partial class ImageGetter : Form
     {
         SaveFileDialog sfd = new SaveFileDialog();
+        MapBorderImg mbr = null;
         public ImageGetter()
         {
             InitializeComponent();
             toolStripProgressBar1.ProgressBar.Visible = false;
+            mbr = new MapBorderImg();
+            mbr.Show();
         }
 
         public Image GetImage(string imageUrl)
@@ -65,6 +68,7 @@ namespace RtrsMapService_User
         {
             //Placer(0);
             save_img_btn.Enabled = false;
+            transfer_btn.Enabled = false;
             string zero = string.Empty;
             zone_sw_lat.Text = zero;
             zone_sw_lon.Text = zero;
@@ -74,11 +78,12 @@ namespace RtrsMapService_User
             lon_center_txt.Text = zero;
             out_img.Image = null;
         }
+        LoadItem li_loc = null;
         private async void get_info_btn_Click(object sender, EventArgs e)
         {
             toolStripProgressBar1.ProgressBar.Visible = true;
             this.Refresh();
-            LoadItem li = new LoadItem();
+            li_loc = new LoadItem();
             int id;
             if (!int.TryParse(plex_id_txt.Text, out id))
             {
@@ -92,64 +97,73 @@ namespace RtrsMapService_User
             //Checker();
             Cleaner();
             //li = dta.GetMapInfo_plex(int.Parse(plex_id_txt.Text));
-            li = await LoadItem.GetMapInfoAsync(id);
+            li_loc = await LoadItem.GetMapInfoAsync(id);
 
-            if (!string.IsNullOrEmpty(li.er_string))
+            if (!string.IsNullOrEmpty(li_loc.er_string))
             {
                 out_img.Image = out_img.ErrorImage;
-                status_strip.Text = li.er_string;
+                status_strip.Text = li_loc.er_string;
                 toolStripProgressBar1.ProgressBar.Visible = false;
                 return;
             }
-            Placer(li, 1);
+            Placer(li_loc, 1);
             save_img_btn.Enabled = true;
+            transfer_btn.Enabled = true;
             toolStripProgressBar1.ProgressBar.Visible = false;
             //SaveSet();
         }
 
-    private void save_img_btn_Click(object sender, EventArgs e)
-    {
-        sfd.Filter = "png (*.png)|*.png|jpeg (*.jpeg)|*.jpeg|tiff (*.tiff)|*.tiff|bmp (*.bmp)|*.bmp";
-        ImageFormat format = ImageFormat.Png;
-        sfd.Title = "Сохранить изображение";
-        sfd.FileName = $"ID_{plex_id_txt.Text}_plex";
-        sfd.DefaultExt = "png";
-        if (sfd.ShowDialog() == DialogResult.OK)
+        private void save_img_btn_Click(object sender, EventArgs e)
         {
-            string ext = System.IO.Path.GetExtension(sfd.FileName);
-            switch (ext)
+            sfd.Filter = "png (*.png)|*.png|jpeg (*.jpeg)|*.jpeg|tiff (*.tiff)|*.tiff|bmp (*.bmp)|*.bmp";
+            ImageFormat format = ImageFormat.Png;
+            sfd.Title = "Сохранить изображение";
+            sfd.FileName = $"ID_{plex_id_txt.Text}_plex";
+            sfd.DefaultExt = "png";
+            if (sfd.ShowDialog() == DialogResult.OK)
             {
-                case ".jpg":
-                    format = ImageFormat.Jpeg;
-                    break;
-                case ".bmp":
-                    format = ImageFormat.Bmp;
-                    break;
+                string ext = System.IO.Path.GetExtension(sfd.FileName);
+                switch (ext)
+                {
+                    case ".jpg":
+                        format = ImageFormat.Jpeg;
+                        break;
+                    case ".bmp":
+                        format = ImageFormat.Bmp;
+                        break;
+                }
+                out_img.Image.Save(sfd.FileName, format);
             }
-            out_img.Image.Save(sfd.FileName, format);
+            //SaveSet();
         }
-        //SaveSet();
-    }
 
-    private void plex_id_txt_TextChanged(object sender, EventArgs e)
-    {
-        var t = sender as TextBox;
-        string regex = @"^\d+$";
-        if (Regex.IsMatch(t.Text, regex))
+        private void plex_id_txt_TextChanged(object sender, EventArgs e)
         {
-            t.ForeColor = Color.Black;
-            get_info_btn.Enabled = true;
+            var t = sender as TextBox;
+            string regex = @"^\d+$";
+            if (Regex.IsMatch(t.Text, regex))
+            {
+                t.ForeColor = Color.Black;
+                get_info_btn.Enabled = true;
+            }
+            else
+            {
+                t.ForeColor = Color.Red;
+                get_info_btn.Enabled = false;
+            }
         }
-        else
-        {
-            t.ForeColor = Color.Red;
-            get_info_btn.Enabled = false;
-        }
-    }
 
         private void transfer_btn_Click(object sender, EventArgs e)
         {
+            if (mbr.IsDisposed)
+                mbr = new MapBorderImg();
+            mbr.Show();
+            mbr.SetInputFromOutside(li_loc.map_trans1, out_img.Image);
+        }
 
+        private void ImageGetter_MouseEnter(object sender, EventArgs e)
+        {
+            this.Focus();
         }
     }
 }
