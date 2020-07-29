@@ -97,6 +97,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="server\dist\bundle.js.map" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -107,6 +108,15 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="server\dist\bundle.js" />
+    <Content Include="server\dist\L.Path.Drag1.js" />
+    <Content Include="server\ico\anchor.ico" />
+    <Content Include="server\ico\tower_ico_blue.png" />
+    <Content Include="server\ico\tower_ico_red.png" />
+    <Content Include="server\src\index.js" />
+    <Content Include="server\src\main.js" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
