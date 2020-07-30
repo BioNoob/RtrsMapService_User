@@ -78,7 +78,6 @@ namespace RtrsMapService_User
                 t.Close();
             }
             this.Shown += MapBorderGeneratorForm_Shown;
-            this.FormClosing += MapBorderGeneratorForm_FormClosing;
             Dic.Add(sw_lat_txt, false);
             Dic.Add(sw_lon_txt, false);
             Dic.Add(ne_lat_txt, false);
@@ -439,17 +438,6 @@ namespace RtrsMapService_User
             fl_isloaded = false;
             save_img_btn.Enabled = false;
         }
-
-        private void MapBorderGeneratorForm_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            timers.Stop();
-            Task.Delay(100);
-            timers.Dispose();
-            SaveSett();
-            chromeBrowser.Dispose();
-            myServer.Stop();
-        }
-
         private void sw_lon_txt_TextChanged(object sender, EventArgs e)
         {
             var t = sender as TextBox;
@@ -649,6 +637,24 @@ namespace RtrsMapService_User
         private void panel_top_MouseEnter(object sender, EventArgs e)
         {
             this.Focus();
+        }
+
+        public void MapBorderImg_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (e.CloseReason == CloseReason.UserClosing)
+            {
+                e.Cancel = true;
+                Hide();
+            }
+            else
+            {
+                timers.Stop();
+                Task.Delay(100);
+                timers.Dispose();
+                SaveSett();
+                chromeBrowser.Dispose();
+                myServer.Stop();
+            }
         }
     }
 }

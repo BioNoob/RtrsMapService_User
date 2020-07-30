@@ -214,5 +214,53 @@ namespace RtrsMapService_User.Properties {
                 this["ic_active"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0, 0")]
+        public global::System.Drawing.Point imgform_start_pos {
+            get {
+                return ((global::System.Drawing.Point)(this["imgform_start_pos"]));
+            }
+            set {
+                this["imgform_start_pos"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0, 0")]
+        public global::System.Drawing.Point mapform_start_pos {
+            get {
+                return ((global::System.Drawing.Point)(this["mapform_start_pos"]));
+            }
+            set {
+                this["mapform_start_pos"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0, 0")]
+        public global::System.Drawing.Size mapform_size {
+            get {
+                return ((global::System.Drawing.Size)(this["mapform_size"]));
+            }
+            set {
+                this["mapform_size"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string current_id {
+            get {
+                return ((string)(this["current_id"]));
+            }
+            set {
+                this["current_id"] = value;
+            }
+        }
     }
 }

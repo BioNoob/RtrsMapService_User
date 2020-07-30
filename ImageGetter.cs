@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -25,9 +26,37 @@ namespace RtrsMapService_User
         public ImageGetter()
         {
             InitializeComponent();
-            toolStripProgressBar1.ProgressBar.Visible = false;
             mbr = new MapBorderImg();
+            LoadSet();
+            toolStripProgressBar1.ProgressBar.Visible = false;
             mbr.Show();
+        }
+
+        private void LoadSet()
+        {
+            plex_id_txt.Text = Properties.Settings.Default.current_id;
+            if (Properties.Settings.Default.imgform_start_pos != new Point())
+                this.Location = Properties.Settings.Default.imgform_start_pos;
+            else
+            {
+                this.CenterToScreen();
+                this.Location = new Point(Location.X - this.Width, Location.Y);
+            }
+
+            if (Properties.Settings.Default.mapform_start_pos != new Point())
+                mbr.Location = Properties.Settings.Default.mapform_start_pos;
+            else
+                mbr.Location = new Point(this.Location.X + this.Width, this.Location.Y);
+            if (Properties.Settings.Default.mapform_size != new Size())
+                mbr.Size = Properties.Settings.Default.mapform_size;
+        }
+        private void SaveSet()
+        {
+            Properties.Settings.Default.current_id = plex_id_txt.Text;
+            Properties.Settings.Default.imgform_start_pos = this.Location;
+            Properties.Settings.Default.mapform_size = mbr.Size;
+            Properties.Settings.Default.mapform_start_pos = mbr.Location;
+            Properties.Settings.Default.Save();
         }
 
         public Image GetImage(string imageUrl)
@@ -109,6 +138,7 @@ namespace RtrsMapService_User
             Placer(li_loc, 1);
             save_img_btn.Enabled = true;
             transfer_btn.Enabled = true;
+            SaveSet();
             toolStripProgressBar1.ProgressBar.Visible = false;
             //SaveSet();
         }
@@ -134,7 +164,7 @@ namespace RtrsMapService_User
                 }
                 out_img.Image.Save(sfd.FileName, format);
             }
-            //SaveSet();
+            SaveSet();
         }
 
         private void plex_id_txt_TextChanged(object sender, EventArgs e)
@@ -164,6 +194,13 @@ namespace RtrsMapService_User
         private void ImageGetter_MouseEnter(object sender, EventArgs e)
         {
             this.Focus();
+        }
+
+        private void ImageGetter_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            SaveSet();
+            mbr.MapBorderImg_FormClosing(mbr, new FormClosingEventArgs(CloseReason.FormOwnerClosing, false));
+            mbr.Dispose();
         }
     }
 }

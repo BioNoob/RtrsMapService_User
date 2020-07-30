@@ -907,7 +907,9 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MinimumSize = new System.Drawing.Size(869, 867);
             this.Name = "MapBorderImg";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "Размещение зоны";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MapBorderImg_FormClosing);
             this.MouseHover += new System.EventHandler(this.panel_top_MouseEnter);
             this.groupBox5.ResumeLayout(false);
             this.groupBox5.PerformLayout();

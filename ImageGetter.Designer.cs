@@ -335,7 +335,9 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MinimumSize = new System.Drawing.Size(359, 606);
             this.Name = "ImageGetter";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "Получение изображения";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.ImageGetter_FormClosed);
             this.MouseEnter += new System.EventHandler(this.ImageGetter_MouseEnter);
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
