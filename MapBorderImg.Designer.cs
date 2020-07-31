@@ -633,6 +633,7 @@
             this.set_size_wifth.TabIndex = 25;
             this.set_size_wifth.Tag = "wi";
             this.toolTip1.SetToolTip(this.set_size_wifth, "Ширина");
+            this.set_size_wifth.TextChanged += new System.EventHandler(this.set_size_txt_TextChanged);
             // 
             // set_size_hieght
             // 
@@ -642,6 +643,7 @@
             this.set_size_hieght.TabIndex = 24;
             this.set_size_hieght.Tag = "hi";
             this.toolTip1.SetToolTip(this.set_size_hieght, "Высота");
+            this.set_size_hieght.TextChanged += new System.EventHandler(this.set_size_txt_TextChanged);
             // 
             // size_width
             // 
@@ -837,7 +839,7 @@
             this.numericUpDown1.TabIndex = 11;
             this.numericUpDown1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.numericUpDown1.Value = new decimal(new int[] {
-            5,
+            9,
             0,
             0,
             0});

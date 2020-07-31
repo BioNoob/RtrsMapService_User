@@ -165,6 +165,7 @@ namespace RtrsMapService_User
                 out_img.Image.Save(sfd.FileName, format);
             }
             SaveSet();
+            Program.OpenImage(sfd.FileName);
         }
 
         private void plex_id_txt_TextChanged(object sender, EventArgs e)
@@ -188,7 +189,7 @@ namespace RtrsMapService_User
             if (mbr.IsDisposed)
                 mbr = new MapBorderImg();
             mbr.Show();
-            mbr.SetInputFromOutside(li_loc.map_trans1, out_img.Image);
+            mbr.SetInputFromOutside(li_loc.map_trans1, out_img.Image, li_loc.id_trans1);
         }
 
         private void ImageGetter_MouseEnter(object sender, EventArgs e)

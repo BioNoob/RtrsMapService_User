@@ -17,7 +17,6 @@
             margin: 0px;
             padding: 0px;
         }
-
         .top-left {
             position: absolute;
             top: 8px;
@@ -28,7 +27,7 @@
 <body>
     <div class="container">
 
-        <div id="map" style="width:100%;height: 100%;"></div>
+        <div id="map" style="width: X; height: Y"></div>
         <div id="imgborder" class="top-left"></div>
         <div id="zoneborder" class="top-left"></div>
         <div id="imgcenter" class="top-left"></div>
@@ -38,10 +37,8 @@
     <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
     <script src='../dist/L.Path.Drag1.js'></script>
     <script src="../dist/bundle.js"></script>
-    <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js'></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin="">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <link href='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css' rel='stylesheet'>
     <script>
         var myIconRED = L.icon({
             iconUrl: 'http://localhost:8080/ico/tower_ico_red.png',
@@ -177,8 +174,8 @@
             hideControlContainer: true
         }).addTo(map);
         c4.addTo(map);
-        function manualPrint() {
-            printer.printMap('CurrentSize', 'MyManualPrint')
+        function manualPrint(e) {
+            printer.printMap('CurrentSize', e)
         }
     </script>
 </body>

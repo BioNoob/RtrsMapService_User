@@ -100,8 +100,8 @@ namespace RtrsMapService_User
             thr.Start();
         }
 
-
-        public void SetInputFromOutside(mapobj mo, Image img = null)
+        public string mult_id = "";
+        public void SetInputFromOutside(mapobj mo, Image img = null, int id = 0)
         {
             if (img != null)
             {
@@ -111,6 +111,10 @@ namespace RtrsMapService_User
             sw_lon_txt.Text = mo.swy.ToString(CultureInfo.InvariantCulture);
             ne_lat_txt.Text = mo.nex.ToString(CultureInfo.InvariantCulture);
             ne_lon_txt.Text = mo.ney.ToString(CultureInfo.InvariantCulture);
+            if (id != 0)
+                mult_id = id.ToString();
+            else
+                mult_id = string.Empty;
         }
 
         private void MapBorderGeneratorForm_Shown(object sender, EventArgs e)
@@ -120,8 +124,8 @@ namespace RtrsMapService_User
 
         private async void Timers_Tick(object sender, EventArgs e)
         {
-                var t = await chromeBrowser.GetTextAsync();
-                coordplacer(t);
+            var t = await chromeBrowser.GetTextAsync();
+            coordplacer(t);
         }
         private void coordplacer(string text)
         {
@@ -288,6 +292,7 @@ namespace RtrsMapService_User
             {
                 string buf = "html, body {height: " + si.Height.ToString() + "px;width: " + si.Width.ToString() + "px;";
                 fileContents = fileContents.Replace(standart_string, buf);
+                fileContents = fileContents.Replace("<div id=\"map\" style=\"width: X; height: Y\"></div>", $"<div id=\"map\" style=\"width: {si.Width}px; height: {si.Height}px\"></div>");
                 ActSize = si;
             }
         }
@@ -337,6 +342,7 @@ namespace RtrsMapService_User
             openFileDialog1.FileName = selectedimg_path;
             file_name_txt.Text = Path.GetFileName(selectedimg_path);//openFileDialog1.SafeFileName;
             WI_HI_cssSetter(new Size(Properties.Settings.Default.size_w, Properties.Settings.Default.size_h));
+            mult_id = Properties.Settings.Default.current_id;
             if (File.Exists(selectedimg_path))
             {
 
@@ -487,12 +493,18 @@ namespace RtrsMapService_User
 
             }
             await Task.Delay(3000);
-            chromeBrowser.GetMainFrame().ExecuteJavaScriptAsync("manualPrint();");
+            string my_name_is;
+            DateTime dt = DateTime.Now;
+            if (!string.IsNullOrEmpty(mult_id))
+                my_name_is = $"ID_{mult_id}_{dt.ToString("dd_MM-HH:mm")}_MapImg";
+            else
+                my_name_is = $"{dt.ToString("dd_MM-HH:mm")}_MapImg";
+            chromeBrowser.GetMainFrame().ExecuteJavaScriptAsync($"manualPrint(\"{my_name_is}\");");
             SaveSett();
             pictureBox1.Visible = false;
         }
 
-        private void set_size_btn_Click(object sender, EventArgs e)
+        private void set_size_txt_TextChanged(object sender, EventArgs e)
         {
             var t = sender as TextBox;
             string regex = @"^\d+$";
@@ -519,10 +531,26 @@ namespace RtrsMapService_User
                 t.ForeColor = Color.Red;
             }
         }
-
+        private void set_size_btn_Click(object sender, EventArgs e)
+        {
+            ActSize = NewSize;
+            if (show_map_btn.Enabled)
+            {
+                show_map_btn.PerformClick();
+            }
+            SaveSett();
+        }
         private void clear_size_btn_Click(object sender, EventArgs e)
         {
-
+            NewSize = new Size();
+            WI_HI_cssSetter(NewSize);
+            if (show_map_btn.Enabled)
+            {
+                show_map_btn.PerformClick();
+            }
+            set_size_hieght.Text = NewSize.Height.ToString();
+            set_size_wifth.Text = NewSize.Width.ToString();
+            SaveSett();
         }
 
         private void clear_img_btn_Click(object sender, EventArgs e)
@@ -656,5 +684,7 @@ namespace RtrsMapService_User
                 myServer.Stop();
             }
         }
+
+
     }
 }

@@ -1,6 +1,7 @@
 ﻿using CefSharp;
 using CefSharp.WinForms;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -106,6 +107,13 @@ namespace RtrsMapService_User
 
             return null;
 
+        }
+        public static void OpenImage(string path)
+        {
+            if(File.Exists(path))
+            {
+                Process.Start(path);
+            }
         }
     }
 }

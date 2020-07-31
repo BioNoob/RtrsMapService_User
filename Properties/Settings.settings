@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="Zoom" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">5</Value>
+      <Value Profile="(Default)">9</Value>
     </Setting>
     <Setting Name="zone_move" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
