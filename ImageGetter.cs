@@ -30,6 +30,7 @@ namespace RtrsMapService_User
             LoadSet();
             toolStripProgressBar1.ProgressBar.Visible = false;
             mbr.Show();
+            new SimleMapForm().Show();
         }
 
         private void LoadSet()
