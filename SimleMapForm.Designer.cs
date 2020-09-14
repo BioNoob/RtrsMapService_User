@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SimleMapForm));
             this.panel1 = new System.Windows.Forms.Panel();
             this.save_img_btn = new System.Windows.Forms.Button();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
@@ -93,6 +94,9 @@
             this.zone_sw_lon = new System.Windows.Forms.TextBox();
             this.zone_ne_lon = new System.Windows.Forms.TextBox();
             this.panel3 = new System.Windows.Forms.Panel();
+            this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
+            this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
+            this.panel4 = new System.Windows.Forms.Panel();
             this.panel1.SuspendLayout();
             this.groupBox6.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
@@ -103,6 +107,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.groupBox5.SuspendLayout();
             this.groupBox4.SuspendLayout();
+            this.panel4.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel1
@@ -116,6 +121,7 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(993, 137);
             this.panel1.TabIndex = 0;
+            this.panel1.MouseHover += new System.EventHandler(this.panel_top_MouseEnter);
             // 
             // save_img_btn
             // 
@@ -145,6 +151,7 @@
             this.groupBox6.Size = new System.Drawing.Size(394, 103);
             this.groupBox6.TabIndex = 36;
             this.groupBox6.TabStop = false;
+            this.groupBox6.MouseHover += new System.EventHandler(this.panel_top_MouseEnter);
             // 
             // show_map_btn
             // 
@@ -163,6 +170,7 @@
             this.ne_lat_txt.Size = new System.Drawing.Size(137, 20);
             this.ne_lat_txt.TabIndex = 12;
             this.ne_lat_txt.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.ne_lat_txt.TextChanged += new System.EventHandler(this.ne_lat_txt_TextChanged);
             // 
             // label4
             // 
@@ -176,7 +184,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(262, 13);
+            this.label5.Location = new System.Drawing.Point(311, 14);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(74, 13);
             this.label5.TabIndex = 20;
@@ -198,6 +206,7 @@
             this.sw_lat_txt.Size = new System.Drawing.Size(137, 20);
             this.sw_lat_txt.TabIndex = 13;
             this.sw_lat_txt.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.sw_lat_txt.TextChanged += new System.EventHandler(this.ne_lat_txt_TextChanged);
             // 
             // numericUpDown1
             // 
@@ -229,6 +238,7 @@
             this.sw_lon_txt.Size = new System.Drawing.Size(137, 20);
             this.sw_lon_txt.TabIndex = 14;
             this.sw_lon_txt.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.sw_lon_txt.TextChanged += new System.EventHandler(this.sw_lon_txt_TextChanged);
             // 
             // label2
             // 
@@ -246,6 +256,7 @@
             this.ne_lon_txt.Size = new System.Drawing.Size(137, 20);
             this.ne_lon_txt.TabIndex = 15;
             this.ne_lon_txt.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.ne_lon_txt.TextChanged += new System.EventHandler(this.sw_lon_txt_TextChanged);
             // 
             // label1
             // 
@@ -258,6 +269,8 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox2.Controls.Add(this.label7);
             this.groupBox2.Controls.Add(this.size_hieght);
             this.groupBox2.Controls.Add(this.size_width);
@@ -272,10 +285,10 @@
             this.groupBox2.TabIndex = 23;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Размер карты";
+            this.groupBox2.MouseHover += new System.EventHandler(this.panel_top_MouseEnter);
             // 
             // label7
             // 
-            this.label7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label7.AutoSize = true;
             this.label7.Location = new System.Drawing.Point(32, 83);
             this.label7.Name = "label7";
@@ -285,7 +298,6 @@
             // 
             // size_hieght
             // 
-            this.size_hieght.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.size_hieght.Location = new System.Drawing.Point(10, 101);
             this.size_hieght.Name = "size_hieght";
             this.size_hieght.ReadOnly = true;
@@ -294,7 +306,6 @@
             // 
             // size_width
             // 
-            this.size_width.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.size_width.Location = new System.Drawing.Point(81, 101);
             this.size_width.Name = "size_width";
             this.size_width.ReadOnly = true;
@@ -310,34 +321,35 @@
             this.clear_size_btn.TabIndex = 30;
             this.clear_size_btn.Text = "Сброс размера по окну";
             this.clear_size_btn.UseVisualStyleBackColor = true;
+            this.clear_size_btn.Click += new System.EventHandler(this.clear_size_btn_Click);
             // 
             // set_size_btn
             // 
-            this.set_size_btn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.set_size_btn.Location = new System.Drawing.Point(10, 49);
             this.set_size_btn.Name = "set_size_btn";
             this.set_size_btn.Size = new System.Drawing.Size(137, 23);
             this.set_size_btn.TabIndex = 28;
             this.set_size_btn.Text = "Задать размер";
             this.set_size_btn.UseVisualStyleBackColor = true;
+            this.set_size_btn.Click += new System.EventHandler(this.set_size_btn_Click);
             // 
             // set_size_wifth_txt
             // 
-            this.set_size_wifth_txt.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.set_size_wifth_txt.Location = new System.Drawing.Point(82, 22);
             this.set_size_wifth_txt.Name = "set_size_wifth_txt";
             this.set_size_wifth_txt.Size = new System.Drawing.Size(66, 20);
             this.set_size_wifth_txt.TabIndex = 27;
             this.set_size_wifth_txt.Tag = "wi";
+            this.set_size_wifth_txt.TextChanged += new System.EventHandler(this.set_size_hieght_txt_TextChanged);
             // 
             // set_size_hieght_txt
             // 
-            this.set_size_hieght_txt.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.set_size_hieght_txt.Location = new System.Drawing.Point(10, 22);
             this.set_size_hieght_txt.Name = "set_size_hieght_txt";
             this.set_size_hieght_txt.Size = new System.Drawing.Size(66, 20);
             this.set_size_hieght_txt.TabIndex = 26;
             this.set_size_hieght_txt.Tag = "hi";
+            this.set_size_hieght_txt.TextChanged += new System.EventHandler(this.set_size_hieght_txt_TextChanged);
             // 
             // set_size_border_btn
             // 
@@ -348,9 +360,11 @@
             this.set_size_border_btn.TabIndex = 29;
             this.set_size_border_btn.Text = "Выставить размер по области";
             this.set_size_border_btn.UseVisualStyleBackColor = true;
+            this.set_size_border_btn.Click += new System.EventHandler(this.set_size_border_btn_Click);
             // 
             // groupBox1
             // 
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox1.Controls.Add(this.clear_img_btn);
             this.groupBox1.Controls.Add(this.select_img_btn);
             this.groupBox1.Controls.Add(this.file_name_txt);
@@ -365,6 +379,7 @@
             this.groupBox1.TabIndex = 22;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Дополнительные объекты";
+            this.groupBox1.MouseHover += new System.EventHandler(this.panel_top_MouseEnter);
             // 
             // clear_img_btn
             // 
@@ -375,6 +390,7 @@
             this.clear_img_btn.TabIndex = 35;
             this.clear_img_btn.Text = "❌";
             this.clear_img_btn.UseVisualStyleBackColor = true;
+            this.clear_img_btn.Click += new System.EventHandler(this.clear_img_btn_Click);
             // 
             // select_img_btn
             // 
@@ -384,6 +400,7 @@
             this.select_img_btn.TabIndex = 29;
             this.select_img_btn.Text = "Выбрать изображение";
             this.select_img_btn.UseVisualStyleBackColor = true;
+            this.select_img_btn.Click += new System.EventHandler(this.select_img_btn_Click);
             // 
             // file_name_txt
             // 
@@ -414,6 +431,7 @@
             this.icon_check.TabIndex = 14;
             this.icon_check.Text = "Иконка в центре";
             this.icon_check.UseVisualStyleBackColor = true;
+            this.icon_check.CheckedChanged += new System.EventHandler(this.icon_check_CheckedChanged);
             // 
             // square_check
             // 
@@ -425,6 +443,7 @@
             this.square_check.TabIndex = 15;
             this.square_check.Text = "Квадрат по зоне";
             this.square_check.UseVisualStyleBackColor = true;
+            this.square_check.CheckedChanged += new System.EventHandler(this.square_check_CheckedChanged);
             // 
             // square_color_cmb
             // 
@@ -460,11 +479,11 @@
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(993, 106);
             this.panel2.TabIndex = 1;
+            this.panel2.MouseHover += new System.EventHandler(this.panel_top_MouseEnter);
             // 
             // groupBox3
             // 
-            this.groupBox3.Controls.Add(this.pictureBox1);
-            this.groupBox3.Controls.Add(this.label19);
+            this.groupBox3.Controls.Add(this.panel4);
             this.groupBox3.Controls.Add(this.groupBox5);
             this.groupBox3.Controls.Add(this.groupBox4);
             this.groupBox3.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -473,17 +492,19 @@
             this.groupBox3.Size = new System.Drawing.Size(993, 106);
             this.groupBox3.TabIndex = 21;
             this.groupBox3.TabStop = false;
+            this.groupBox3.MouseHover += new System.EventHandler(this.panel_top_MouseEnter);
             // 
             // pictureBox1
             // 
             this.pictureBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.pictureBox1.BackColor = System.Drawing.Color.Transparent;
+            this.pictureBox1.BackColor = System.Drawing.Color.White;
             this.pictureBox1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.pictureBox1.Location = new System.Drawing.Point(396, 42);
+            this.pictureBox1.Image = global::RtrsMapService_User.Properties.Resources.Infinity;
+            this.pictureBox1.Location = new System.Drawing.Point(0, 41);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(199, 58);
+            this.pictureBox1.Size = new System.Drawing.Size(234, 55);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
@@ -494,9 +515,9 @@
             this.label19.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.label19.Location = new System.Drawing.Point(384, 7);
+            this.label19.Location = new System.Drawing.Point(3, 3);
             this.label19.Name = "label19";
-            this.label19.Size = new System.Drawing.Size(224, 36);
+            this.label19.Size = new System.Drawing.Size(228, 33);
             this.label19.TabIndex = 27;
             this.label19.Text = "Экспорт координат";
             this.label19.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -533,6 +554,7 @@
             this.set_img_btn.TabIndex = 46;
             this.set_img_btn.Text = "↑";
             this.set_img_btn.UseVisualStyleBackColor = true;
+            this.set_img_btn.Click += new System.EventHandler(this.set_img_btn_Click);
             // 
             // label13
             // 
@@ -674,6 +696,7 @@
             this.set_zone_btn.TabIndex = 33;
             this.set_zone_btn.Text = "↑";
             this.set_zone_btn.UseVisualStyleBackColor = true;
+            this.set_zone_btn.Click += new System.EventHandler(this.set_zone_btn_Click);
             // 
             // label11
             // 
@@ -791,6 +814,23 @@
             this.panel3.Name = "panel3";
             this.panel3.Size = new System.Drawing.Size(993, 669);
             this.panel3.TabIndex = 2;
+            this.panel3.MouseHover += new System.EventHandler(this.panel_top_MouseEnter);
+            // 
+            // openFileDialog1
+            // 
+            this.openFileDialog1.FileName = "openFileDialog1";
+            // 
+            // panel4
+            // 
+            this.panel4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.panel4.BackColor = System.Drawing.Color.White;
+            this.panel4.Controls.Add(this.pictureBox1);
+            this.panel4.Controls.Add(this.label19);
+            this.panel4.Location = new System.Drawing.Point(378, 7);
+            this.panel4.Name = "panel4";
+            this.panel4.Size = new System.Drawing.Size(234, 97);
+            this.panel4.TabIndex = 28;
             // 
             // SimleMapForm
             // 
@@ -800,8 +840,12 @@
             this.Controls.Add(this.panel3);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MinimumSize = new System.Drawing.Size(1009, 951);
             this.Name = "SimleMapForm";
-            this.Text = "SimleMapForm";
+            this.Text = "Размещение зоны";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MapBorderImg_FormClosing);
+            this.MouseHover += new System.EventHandler(this.panel_top_MouseEnter);
             this.panel1.ResumeLayout(false);
             this.groupBox6.ResumeLayout(false);
             this.groupBox6.PerformLayout();
@@ -817,6 +861,7 @@
             this.groupBox5.PerformLayout();
             this.groupBox4.ResumeLayout(false);
             this.groupBox4.PerformLayout();
+            this.panel4.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -888,5 +933,8 @@
         private System.Windows.Forms.Button clear_size_btn;
         private System.Windows.Forms.GroupBox groupBox6;
         private System.Windows.Forms.Button show_map_btn;
+        private System.Windows.Forms.OpenFileDialog openFileDialog1;
+        private System.Windows.Forms.SaveFileDialog saveFileDialog1;
+        private System.Windows.Forms.Panel panel4;
     }
 }

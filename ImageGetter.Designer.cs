@@ -121,6 +121,7 @@
             this.panel1.Size = new System.Drawing.Size(343, 28);
             this.panel1.TabIndex = 3;
             this.panel1.MouseEnter += new System.EventHandler(this.ImageGetter_MouseEnter);
+            this.panel1.MouseLeave += new System.EventHandler(this.ImageGetter_MouseLeave);
             // 
             // label14
             // 
@@ -165,6 +166,7 @@
             this.panel3.Size = new System.Drawing.Size(343, 173);
             this.panel3.TabIndex = 52;
             this.panel3.MouseEnter += new System.EventHandler(this.ImageGetter_MouseEnter);
+            this.panel3.MouseLeave += new System.EventHandler(this.ImageGetter_MouseLeave);
             // 
             // transfer_btn
             // 
@@ -322,6 +324,7 @@
             this.out_img.TabIndex = 53;
             this.out_img.TabStop = false;
             this.out_img.MouseEnter += new System.EventHandler(this.ImageGetter_MouseEnter);
+            this.out_img.MouseLeave += new System.EventHandler(this.ImageGetter_MouseLeave);
             // 
             // ImageGetter
             // 
@@ -339,6 +342,7 @@
             this.Text = "Получение изображения";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.ImageGetter_FormClosed);
             this.MouseEnter += new System.EventHandler(this.ImageGetter_MouseEnter);
+            this.MouseLeave += new System.EventHandler(this.ImageGetter_MouseLeave);
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
             this.panel1.ResumeLayout(false);

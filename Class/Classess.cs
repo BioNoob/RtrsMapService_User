@@ -136,25 +136,83 @@ namespace RtrsMapService_User
         public static async Task GetTransmImgAsync(LoadItem li)
         {
             string getimg = "https://xn--80aa2azak.xn--p1aadc.xn--p1ai/rtrs/ajax/broadcast?type=digital&id=";
-            HtmlAgilityPack.HtmlDocument HD = new HtmlAgilityPack.HtmlDocument();
-            var web = new HtmlWeb
+
+
+            WebClient client = new WebClient();
+            client.Proxy = null;
+            client.UseDefaultCredentials = true;
+
+            string baseHtml = "";
+
+            var t = client.DownloadDataTaskAsync(getimg + li.id_trans1);
+
+            try
             {
-                AutoDetectEncoding = false,
-                OverrideEncoding = Encoding.UTF8,
-            };
-            CancellationTokenSource cts = new CancellationTokenSource(5000);
-            HD = await web.LoadFromWebAsync(getimg + li.id_trans1, cts.Token);
-            if (cts.IsCancellationRequested)
+                if (await Task.WhenAny(t, Task.Delay(5000)) == t)
+                {
+                    if (t.Exception != null)
+                    {
+                        if (t.Exception.InnerExceptions.Count <= 1)
+                        {
+                            if (t.Exception.InnerException.Message.Contains("404"))
+                            {
+                                li.er_string = "Мульт не найден";
+                                return;
+                            }
+                            if(t.Exception.InnerException.Message.Contains("407"))
+                            {
+                                li.er_string = "Ошибка доступа к сайту из за прокси сервера на вашей машине";
+                                return;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        byte[] pageContent = t.Result;
+                        UTF8Encoding utf = new UTF8Encoding();
+                        baseHtml = utf.GetString(pageContent);
+                        li.er_string = string.Empty;
+                    }
+                }
+                else
+                {
+                    li.er_string = "Время ожидания истекло";
+                    return;
+                }
+
+            }
+            catch (Exception ex)
             {
-                li.er_string = "Время ожидания истекло";
+                System.Windows.Forms.MessageBox.Show($"Загрузка завершена с ошибкой\n {ex.Message}", "Ошибка");
                 return;
             }
-            if (HD.DocumentNode.InnerHtml.Contains("404"))
-            {
-                li.er_string = "Узел не найден";
-                return;
-            }
-            li.map_trans1 = JsonConvert.DeserializeObject<mapobj>(HD.DocumentNode.InnerText);
+            li.map_trans1 = JsonConvert.DeserializeObject<mapobj>(baseHtml);
+            t.Dispose();
+            client.Dispose();
+
+
+
+            //HtmlAgilityPack.HtmlDocument HD = new HtmlAgilityPack.HtmlDocument();
+            //var web = new HtmlWeb
+            //{
+            //    AutoDetectEncoding = false,
+            //    OverrideEncoding = Encoding.UTF8,
+            //};
+            //CancellationTokenSource cts = new CancellationTokenSource(5000);
+            //HD = await web.LoadFromWebAsync(getimg + li.id_trans1, cts.Token);
+            //if (cts.IsCancellationRequested)
+            //{
+            //    li.er_string = "Время ожидания истекло";
+            //    return;
+            //}
+            //if (HD.DocumentNode.InnerHtml.Contains("404"))
+            //{
+            //    li.er_string = "Узел не найден";
+            //    return;
+            //}
+            //li.map_trans1 = JsonConvert.DeserializeObject<mapobj>(HD.DocumentNode.InnerText);
+
+
             //using (var wb = new WebClient())
             //{
             //    var response = wb.DownloadString(getimg + li.id_trans1);

@@ -22,15 +22,15 @@ namespace RtrsMapService_User
     public partial class ImageGetter : Form
     {
         SaveFileDialog sfd = new SaveFileDialog();
-        MapBorderImg mbr = null;
+        SimleMapForm mbr = null;
         public ImageGetter()
         {
             InitializeComponent();
-            mbr = new MapBorderImg();
+            mbr = new SimleMapForm();
             LoadSet();
             toolStripProgressBar1.ProgressBar.Visible = false;
             mbr.Show();
-            new SimleMapForm().Show();
+            //new SimleMapForm().Show();
         }
 
         private void LoadSet()
@@ -106,6 +106,7 @@ namespace RtrsMapService_User
             zone_ne_lon.Text = zero;
             lat_center_txt.Text = zero;
             lon_center_txt.Text = zero;
+            status_strip.Text = string.Empty;
             out_img.Image = null;
         }
         LoadItem li_loc = null;
@@ -188,7 +189,7 @@ namespace RtrsMapService_User
         private void transfer_btn_Click(object sender, EventArgs e)
         {
             if (mbr.IsDisposed)
-                mbr = new MapBorderImg();
+                mbr = new SimleMapForm();
             mbr.Show();
             mbr.SetInputFromOutside(li_loc.map_trans1, out_img.Image, li_loc.id_trans1);
         }
@@ -203,6 +204,13 @@ namespace RtrsMapService_User
             SaveSet();
             mbr.MapBorderImg_FormClosing(mbr, new FormClosingEventArgs(CloseReason.FormOwnerClosing, false));
             mbr.Dispose();
+        }
+
+        private void ImageGetter_MouseLeave(object sender, EventArgs e)
+        {
+            //if(Cursor.Position.X < this.Location.X || Cursor.Position.X > this.Location.X + Width)
+            //mbr.Activate();
+            //mbr.Focus();
         }
     }
 }

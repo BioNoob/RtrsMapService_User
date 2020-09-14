@@ -28,6 +28,9 @@ namespace RtrsMapService_User
         static string ExPath = System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
         static string ServerPath = ExPath + "\\server";
         static string mult1path = ServerPath + "\\resources\\MapBuild.html";
+        System.Windows.Forms.Timer timers;
+
+        public string mult_id = "";
         string fileContents = string.Empty;
         bool fl_brsizeset = false;
         Dictionary<TextBox, bool> Dic = new Dictionary<TextBox, bool>();
@@ -100,7 +103,6 @@ namespace RtrsMapService_User
             thr.Start();
         }
 
-        public string mult_id = "";
         public void SetInputFromOutside(mapobj mo, Image img = null, int id = 0)
         {
             if (img != null)
@@ -208,7 +210,7 @@ namespace RtrsMapService_User
                 fileContents = fileContents.Replace(buf, buf1);
             }
         }
-        System.Windows.Forms.Timer timers;// = new System.Windows.Forms.Timer();
+       // = new System.Windows.Forms.Timer();
         private static ImageCodecInfo GetEncoder(ImageFormat format)
         {
             ImageCodecInfo[] codecs = ImageCodecInfo.GetImageDecoders();
