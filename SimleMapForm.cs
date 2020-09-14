@@ -87,8 +87,15 @@ namespace RtrsMapService_User
             set_size_hieght_txt.Text = "0";
             set_size_wifth_txt.Text = "0";
             set_size_btn.Enabled = false;
+            StaticInfo.ThrowServerError += StaticInfo_ThrowServerError;
             Thread thr = new Thread(new ThreadStart(InitializeLocalHost));
             thr.Start();
+        }
+
+        private void StaticInfo_ThrowServerError()
+        {
+            this.Invoke(new Action(()=> { Close(); }));
+            this.Invoke(new Action(() => { Dispose(); }));
         }
 
         public void InitializeChromium()
@@ -210,12 +217,12 @@ namespace RtrsMapService_User
             //TextReader tr = new StreamReader(mult1path);
             //string fileContents = string.Empty;// = tr.ReadToEnd();
             //if (checkBox1.Checked)
-                if (!string.IsNullOrEmpty(selectedimg_path))
-                    if (!File.Exists(selectedimg_path))
-                    {
-                        MessageBox.Show("Файл изображения не найден", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return;
-                    }
+            if (!string.IsNullOrEmpty(selectedimg_path))
+                if (!File.Exists(selectedimg_path))
+                {
+                    MessageBox.Show("Файл изображения не найден", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
             //tr.Close();
             WI_HI_cssSetter(ActSize);
             TextWriter tw = new StreamWriter(mult1path, false);
@@ -250,7 +257,7 @@ namespace RtrsMapService_User
                 fileContents = fileContents.Replace("_IMG_PATH_", "true");
             else
                 fileContents = fileContents.Replace("_IMG_PATH_", "false");
-            fileContents = fileContents.Replace("_DRAG_ZONE_",true.ToString().ToLower());
+            fileContents = fileContents.Replace("_DRAG_ZONE_", true.ToString().ToLower());
             fileContents = fileContents.Replace("_DRAG_IMG_", true.ToString().ToLower());
             fileContents = fileContents.Replace("_MARKER_", icon_check.Checked.ToString().ToLower());
             fileContents = fileContents.Replace("_SQUARE_", square_check.Checked.ToString().ToLower());
@@ -263,8 +270,8 @@ namespace RtrsMapService_User
             else
                 web_path = _path_.Replace(img_help_file, "MapBuild.html");
             fileContents = fileContents.Replace("_PATH_", _path_); //selectedimg_path);
-            if(force_set_border)
-            set_size_by_rect();
+            if (force_set_border)
+                set_size_by_rect();
             tw.Write(fileContents);
             tw.Close();
             chromeBrowser.Load(web_path);//mult1path);
@@ -625,7 +632,7 @@ namespace RtrsMapService_User
             chck.ForEach(t => t.Invoke(new Action(() => t.Enabled = flag)));
             btn.ForEach(t => t.Invoke(new Action(() => t.Enabled = flag)));
         }
-        
+
         public IEnumerable<Control> GetAll(Control control, Type type)
         {
             var controls = control.Controls.Cast<Control>();

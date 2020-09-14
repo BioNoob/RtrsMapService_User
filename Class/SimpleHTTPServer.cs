@@ -135,7 +135,18 @@ namespace RtrsMapService_User.Class
         {
             _listener = new HttpListener();
             _listener.Prefixes.Add("http://127.0.0.1:" + _port.ToString() + "/");
-            _listener.Start();
+            try
+            {
+                _listener.Start();
+            }
+            catch (Exception)
+            {
+                var t = System.Windows.Forms.MessageBox.Show("Локальный сервер не может запуститься без прав администратора на вашей машине", "Ошибка", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Error);
+                if (t == System.Windows.Forms.DialogResult.OK)
+                    StaticInfo.ThrowServerErr();
+                return;
+            }
+
             while (true)
             {
                 try

@@ -13,6 +13,17 @@ using System.Threading.Tasks;
 
 namespace RtrsMapService_User
 {
+    public static class StaticInfo
+    {
+        public delegate void ExceptServer();
+        public static event ExceptServer ThrowServerError;
+        public static void ThrowServerErr()
+        {
+            ThrowServerError?.Invoke();
+        }
+    }
+
+
     public class ComboboxItem
     {
         public ComboboxItem(LoadItem li, string text)
