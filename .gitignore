@@ -151,6 +151,9 @@ AutoTest.Net/
 # Web workbench (sass)
 .sass-cache/
 
+# PVS studio
+*.PVS-Studio.perflog
+
 # Installshield output folder
 [Ee]xpress/
 
