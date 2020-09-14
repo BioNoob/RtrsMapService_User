@@ -160,18 +160,33 @@ namespace RtrsMapService_User
             {
                 if (await Task.WhenAny(t, Task.Delay(5000)) == t)
                 {
-                    byte[] pageContent = t.Result;
-                    UTF8Encoding utf = new UTF8Encoding();
-                    baseHtml = utf.GetString(pageContent);
+                    if(t.Exception !=null)
+                    {
+                        if(t.Exception.InnerExceptions.Count <= 1)
+                        {
+                            if (t.Exception.InnerException.Message.Contains("404"))
+                            {
+                                li.er_string = "Мульт не найден";
+                            }
+                        }
+                    }
+                    else
+                    {
+                        byte[] pageContent = t.Result;
+                        UTF8Encoding utf = new UTF8Encoding();
+                        baseHtml = utf.GetString(pageContent);
+                        li.er_string = string.Empty;
+                    }
                 }
                 else
                 {
                     li.er_string = "Время ожидания истекло";
                 }
+
             }
             catch (Exception ex)
             {
-                System.Windows.Forms.MessageBox.Show($"Загрузка завершена с ошибкой {ex.Message}", "Ошибка");
+                System.Windows.Forms.MessageBox.Show($"Загрузка завершена с ошибкой\n {ex.Message}", "Ошибка");
                 return;
             }
             li.map_trans1 = JsonConvert.DeserializeObject<mapobj>(baseHtml);

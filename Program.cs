@@ -76,9 +76,10 @@ namespace RtrsMapService_User
             var settings = new CefSettings();
 
             // Set BrowserSubProcessPath based on app bitness at runtime
-            settings.BrowserSubprocessPath = Path.Combine(AppDomain.CurrentDomain.SetupInformation.ApplicationBase,
-                                                   Environment.Is64BitProcess ? "x64" : "x86",
-                                                   "CefSharp.BrowserSubprocess.exe");
+            //settings.BrowserSubprocessPath = Path.Combine(AppDomain.CurrentDomain.SetupInformation.ApplicationBase,
+            //                                       Environment.Is64BitProcess ? "x64" : "x86",
+            //                                       "CefSharp.BrowserSubprocess.exe");
+            settings.BrowserSubprocessPath = Path.Combine(AppDomain.CurrentDomain.SetupInformation.ApplicationBase, "x86", "CefSharp.BrowserSubprocess.exe");
             settings.WindowlessRenderingEnabled = true;
             settings.SetOffScreenRenderingBestPerformanceArgs();
 
@@ -96,9 +97,12 @@ namespace RtrsMapService_User
             if (args.Name.StartsWith("CefSharp"))
             {
                 string assemblyName = args.Name.Split(new[] { ',' }, 2)[0] + ".dll";
-                string archSpecificPath = Path.Combine(AppDomain.CurrentDomain.SetupInformation.ApplicationBase,
-                                                       Environment.Is64BitProcess ? "x64" : "x86",
-                                                       assemblyName);
+                //string archSpecificPath = Path.Combine(AppDomain.CurrentDomain.SetupInformation.ApplicationBase,
+                //                                       Environment.Is64BitProcess ? "x64" : "x86",
+                //                                       assemblyName);
+               string archSpecificPath = Path.Combine(AppDomain.CurrentDomain.SetupInformation.ApplicationBase,
+                                                     "x86",
+                                                      assemblyName);
 
                 return File.Exists(archSpecificPath)
                            ? Assembly.LoadFile(archSpecificPath)

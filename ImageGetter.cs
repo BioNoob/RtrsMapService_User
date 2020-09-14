@@ -106,6 +106,7 @@ namespace RtrsMapService_User
             zone_ne_lon.Text = zero;
             lat_center_txt.Text = zero;
             lon_center_txt.Text = zero;
+            status_strip.Text = string.Empty;
             out_img.Image = null;
         }
         LoadItem li_loc = null;
