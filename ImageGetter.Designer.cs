@@ -340,6 +340,7 @@
             this.Name = "ImageGetter";
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "Получение изображения";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ImageGetter_FormClosing);
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.ImageGetter_FormClosed);
             this.MouseEnter += new System.EventHandler(this.ImageGetter_MouseEnter);
             this.MouseLeave += new System.EventHandler(this.ImageGetter_MouseLeave);

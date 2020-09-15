@@ -58,7 +58,6 @@ namespace RtrsMapService_User
             //Application.SetCompatibleTextRenderingDefault(false);
             //Application.Run(new Start());
             AppDomain.CurrentDomain.AssemblyResolve += Resolver;
-
             LoadApp();
 
         }
@@ -88,9 +87,16 @@ namespace RtrsMapService_User
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            Application.ApplicationExit += Application_ApplicationExit;
             var form = new ImageGetter();
             Application.Run(form);
         }
+
+        private static void Application_ApplicationExit(object sender, EventArgs e)
+        {
+            Cef.Shutdown();
+        }
+
         private static Assembly Resolver(object sender, ResolveEventArgs args)
         {
             if (args.Name.StartsWith("CefSharp"))

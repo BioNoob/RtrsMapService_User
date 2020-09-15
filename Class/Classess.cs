@@ -21,8 +21,21 @@ namespace RtrsMapService_User
         {
             ThrowServerError?.Invoke();
         }
-    }
 
+        public delegate void CloseMainWindow();
+        public static event CloseMainWindow Ev_CloseMainWindow;
+        public static void DoCloseMainWindow()
+        {
+            Ev_CloseMainWindow?.Invoke();
+        }
+
+        public delegate void TransferDataToMap(mapobj mo, Image img, int id);
+        public static event TransferDataToMap Ev_TransferDataToMap;
+        public static void DoTransferDataToMap(mapobj mo, Image img, int id)
+        {
+            Ev_TransferDataToMap?.Invoke(mo, img, id);
+        }
+    }
 
     public class ComboboxItem
     {

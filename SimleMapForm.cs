@@ -88,13 +88,25 @@ namespace RtrsMapService_User
             set_size_wifth_txt.Text = "0";
             set_size_btn.Enabled = false;
             StaticInfo.ThrowServerError += StaticInfo_ThrowServerError;
+            StaticInfo.Ev_CloseMainWindow += StaticInfo_Ev_CloseMainWindow;
+            StaticInfo.Ev_TransferDataToMap += StaticInfo_Ev_TransferDataToMap;
             Thread thr = new Thread(new ThreadStart(InitializeLocalHost));
             thr.Start();
         }
 
+        private void StaticInfo_Ev_TransferDataToMap(mapobj mo, Image img, int id)
+        {
+            SetInputFromOutside(mo, img, id);
+        }
+
+        private void StaticInfo_Ev_CloseMainWindow()
+        {
+            MapBorderImg_FormClosing(this, new FormClosingEventArgs(CloseReason.FormOwnerClosing, false));
+        }
+
         private void StaticInfo_ThrowServerError()
         {
-            this.Invoke(new Action(()=> { Close(); }));
+            this.Invoke(new Action(() => { Close(); }));
             this.Invoke(new Action(() => { Dispose(); }));
         }
 
@@ -454,6 +466,12 @@ namespace RtrsMapService_User
             file_name_txt.Text = Path.GetFileName(selectedimg_path);//openFileDialog1.SafeFileName;
             WI_HI_cssSetter(new Size(Properties.Settings.Default.size_w, Properties.Settings.Default.size_h));
             mult_id = Properties.Settings.Default.current_id;
+            if (Properties.Settings.Default.mapform_start_pos != new Point())
+                this.Location = Properties.Settings.Default.mapform_start_pos;
+            else
+                this.Location = new Point(this.Location.X + this.Width, this.Location.Y);
+            if (Properties.Settings.Default.mapform_size != new Size())
+                this.Size = Properties.Settings.Default.mapform_size;
             if (File.Exists(selectedimg_path))
             {
 
@@ -473,6 +491,9 @@ namespace RtrsMapService_User
             Properties.Settings.Default.SLon = double.Parse(sw_lon_txt.Text, CultureInfo.InvariantCulture);
             Properties.Settings.Default.NLat = double.Parse(ne_lat_txt.Text, CultureInfo.InvariantCulture);
             Properties.Settings.Default.NLon = double.Parse(ne_lon_txt.Text, CultureInfo.InvariantCulture);
+
+            Properties.Settings.Default.mapform_size = this.Size;
+            Properties.Settings.Default.mapform_start_pos = this.Location;
 
             Properties.Settings.Default.Zoom = (int)numericUpDown1.Value;
             Properties.Settings.Default.ic_active = icon_check.Checked;
@@ -506,20 +527,31 @@ namespace RtrsMapService_User
         {
             if (e.CloseReason == CloseReason.UserClosing)
             {
-                e.Cancel = true;
-                Hide();
+                var dlg = MessageBox.Show("Выйти из программы?", "Выход", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (dlg == DialogResult.Yes)
+                {
+                    CloseApp();
+                }
+                else
+                    e.Cancel = true;
+                //e.Cancel = true;
+                //Hide();
             }
             else
             {
-                timers.Stop();
-                Task.Delay(100);
-                timers.Dispose();
-                SaveSett();
-                chromeBrowser.Dispose();
-                myServer.Stop();
+                CloseApp();
             }
         }
+        void CloseApp()
+        {
+            timers.Stop();
+            Task.Delay(100);
+            timers.Dispose();
+            SaveSett();
+            chromeBrowser.Dispose();
+            myServer.Stop();
 
+        }
         private void WI_HI_cssSetter(Size si)
         {
             using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("RtrsMapService_User.MapBuild_ext.html"))

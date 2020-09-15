@@ -26,11 +26,13 @@ namespace RtrsMapService_User
         public ImageGetter()
         {
             InitializeComponent();
-            mbr = new SimleMapForm();
+            //mbr = new SimleMapForm();
             LoadSet();
             toolStripProgressBar1.ProgressBar.Visible = false;
-            mbr.Show();
+            //mbr.Show();
             //new SimleMapForm().Show();
+            mbr = new SimleMapForm();
+            mbr.Show();
         }
 
         private void LoadSet()
@@ -43,20 +45,11 @@ namespace RtrsMapService_User
                 this.CenterToScreen();
                 this.Location = new Point(Location.X - this.Width, Location.Y);
             }
-
-            if (Properties.Settings.Default.mapform_start_pos != new Point())
-                mbr.Location = Properties.Settings.Default.mapform_start_pos;
-            else
-                mbr.Location = new Point(this.Location.X + this.Width, this.Location.Y);
-            if (Properties.Settings.Default.mapform_size != new Size())
-                mbr.Size = Properties.Settings.Default.mapform_size;
         }
         private void SaveSet()
         {
             Properties.Settings.Default.current_id = plex_id_txt.Text;
             Properties.Settings.Default.imgform_start_pos = this.Location;
-            Properties.Settings.Default.mapform_size = mbr.Size;
-            Properties.Settings.Default.mapform_start_pos = mbr.Location;
             Properties.Settings.Default.Save();
         }
 
@@ -188,10 +181,12 @@ namespace RtrsMapService_User
 
         private void transfer_btn_Click(object sender, EventArgs e)
         {
-            if (mbr.IsDisposed)
-                mbr = new SimleMapForm();
-            mbr.Show();
-            mbr.SetInputFromOutside(li_loc.map_trans1, out_img.Image, li_loc.id_trans1);
+            //place delegate here
+            //if (mbr.IsDisposed)
+            //    mbr = new SimleMapForm();
+            //mbr.Show();
+            StaticInfo.DoTransferDataToMap(li_loc.map_trans1, out_img.Image, li_loc.id_trans1);
+            //mbr.SetInputFromOutside(li_loc.map_trans1, out_img.Image, li_loc.id_trans1);
         }
 
         private void ImageGetter_MouseEnter(object sender, EventArgs e)
@@ -201,9 +196,10 @@ namespace RtrsMapService_User
 
         private void ImageGetter_FormClosed(object sender, FormClosedEventArgs e)
         {
-            SaveSet();
-            mbr.MapBorderImg_FormClosing(mbr, new FormClosingEventArgs(CloseReason.FormOwnerClosing, false));
-            mbr.Dispose();
+
+            //delegate here
+            //mbr.MapBorderImg_FormClosing(mbr, new FormClosingEventArgs(CloseReason.FormOwnerClosing, false));
+            //mbr.Dispose();
         }
 
         private void ImageGetter_MouseLeave(object sender, EventArgs e)
@@ -211,6 +207,16 @@ namespace RtrsMapService_User
             //if(Cursor.Position.X < this.Location.X || Cursor.Position.X > this.Location.X + Width)
             //mbr.Activate();
             //mbr.Focus();
+        }
+
+        private void ImageGetter_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            SaveSet();
+            var dlg = MessageBox.Show("Выйти из программы?", "Выход", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (dlg == DialogResult.Yes)
+                StaticInfo.DoCloseMainWindow();
+            else
+                e.Cancel = true;
         }
     }
 }
