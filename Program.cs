@@ -88,7 +88,7 @@ namespace RtrsMapService_User
         [MethodImpl(MethodImplOptions.NoInlining)]
         private static void LoadApp()
         {
-            if(!no_browser_mode)
+            if (!no_browser_mode)
             {
                 var settings = new CefSettings();
 
@@ -105,7 +105,8 @@ namespace RtrsMapService_User
             }
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.ApplicationExit += Application_ApplicationExit;
+            if (!no_browser_mode)
+                Application.ApplicationExit += Application_ApplicationExit;
             var form = new ImageGetter(no_browser_mode, admin_mode);
             Application.Run(form);
         }
