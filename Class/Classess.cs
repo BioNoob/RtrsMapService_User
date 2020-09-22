@@ -309,4 +309,53 @@ namespace RtrsMapService_User
 
         }
     }
+    public class Data
+    {
+        [JsonProperty("data")]
+        public List<LoadItem> li { get; set; }
+
+        [JsonProperty("updated")]
+        public int DtTime { get; set; }
+        public DateTime MultiTime { get; set; }
+
+        [JsonIgnore]
+        public DateTime Time
+        {
+            get
+            {
+                DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
+                dtDateTime = dtDateTime.AddSeconds(DtTime).ToLocalTime();
+                return dtDateTime;
+            }
+        }
+        public LoadItem GetMapInfo_plex(int id_plex)
+        {
+            int num = 0;
+            if (this.li.Any(x => x.id_trans1 == id_plex))
+                num = 1;
+            else if (this.li.Any(x => x.id_trans2 == id_plex))
+                num = 2;
+            if (num == 0) return null;
+            LoadItem liq = new LoadItem();
+            if (num == 1)
+                liq = this.li.Where(x => x.id_trans1 == id_plex).SingleOrDefault();
+            else
+                liq = this.li.Where(x => x.id_trans2 == id_plex).SingleOrDefault();
+            return liq;
+        }
+        public LoadItem GetMapInfo_server(int id_serv)
+        {
+            int num = 0;
+            if (this.li.Any(x => x.id == id_serv))
+                num = 1;
+            if (num == 0) return null;
+            LoadItem liq = new LoadItem();
+            liq = this.li.Where(x => x.id == id_serv).SingleOrDefault();
+            return liq;
+        }
+        public Data()
+        {
+            li = new List<LoadItem>();
+        }
+    }
 }

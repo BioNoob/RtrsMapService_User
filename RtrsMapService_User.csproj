@@ -84,6 +84,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AdminForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AdminForm.Designer.cs">
+      <DependentUpon>AdminForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Class\Classess.cs" />
     <Compile Include="Class\DownloadHandler.cs" />
     <Compile Include="Class\SimpleHTTPServer.cs" />
@@ -107,6 +113,9 @@
     <Compile Include="SimleMapForm.Designer.cs">
       <DependentUpon>SimleMapForm.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="AdminForm.resx">
+      <DependentUpon>AdminForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="ImageGetter.resx">
       <DependentUpon>ImageGetter.cs</DependentUpon>
     </EmbeddedResource>

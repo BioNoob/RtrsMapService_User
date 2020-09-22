@@ -23,7 +23,7 @@ namespace RtrsMapService_User
     {
         SaveFileDialog sfd = new SaveFileDialog();
         SimleMapForm mbr = null;
-        public ImageGetter()
+        public ImageGetter(bool enable_browser = true, bool enable_admin = false)
         {
             InitializeComponent();
             //mbr = new SimleMapForm();
@@ -32,9 +32,16 @@ namespace RtrsMapService_User
             StaticInfo.Ev_CloseChildWindow += StaticInfo_Ev_CloseChildWindow;
             //mbr.Show();
             //new SimleMapForm().Show();
-            mbr = new SimleMapForm();
-            mbr.Show();
-            
+            if(enable_browser)
+            {
+                mbr = new SimleMapForm();
+                mbr.Show();
+            }
+            if (enable_admin)
+            {
+                AdminForm adm = new AdminForm();
+                adm.Show();
+            }
         }
 
         private void StaticInfo_Ev_CloseChildWindow()

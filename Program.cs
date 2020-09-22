@@ -1,6 +1,7 @@
 ﻿using CefSharp;
 using CefSharp.WinForms;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
@@ -16,7 +17,9 @@ namespace RtrsMapService_User
         public static event SetStatus DoSetStatus;
         public delegate void LoadEnd();
         public static event LoadEnd DoLoadEnd;
-        static ImageGetter form;
+        public static bool admin_mode;
+        public static bool no_browser_mode;
+        //static ImageGetter form;
         public static void ToolStripStatusInvokeAction<TControlType>(this TControlType control, Action<TControlType> del)
     where TControlType : ToolStripStatusLabel
         {
@@ -57,7 +60,20 @@ namespace RtrsMapService_User
             //Application.EnableVisualStyles();
             //Application.SetCompatibleTextRenderingDefault(false);
             //Application.Run(new Start());
-            AppDomain.CurrentDomain.AssemblyResolve += Resolver;
+            string[] args = Environment.GetCommandLineArgs();
+            foreach (var item in args)
+            {
+                if (item.Contains("admin"))
+                    admin_mode = true;
+                else
+                    admin_mode = false;
+                if (item.Contains("noBrowser"))
+                    no_browser_mode = true;
+                else
+                    no_browser_mode = false;
+            }
+            if (!no_browser_mode)
+                AppDomain.CurrentDomain.AssemblyResolve += Resolver;
             LoadApp();
 
         }
@@ -72,23 +88,25 @@ namespace RtrsMapService_User
         [MethodImpl(MethodImplOptions.NoInlining)]
         private static void LoadApp()
         {
-            var settings = new CefSettings();
+            if(!no_browser_mode)
+            {
+                var settings = new CefSettings();
 
-            // Set BrowserSubProcessPath based on app bitness at runtime
-            settings.BrowserSubprocessPath = Path.Combine(AppDomain.CurrentDomain.SetupInformation.ApplicationBase,
-                                                   Environment.Is64BitProcess ? "x64" : "x86",
-                                                   "CefSharp.BrowserSubprocess.exe");
-            settings.WindowlessRenderingEnabled = true;
-            settings.SetOffScreenRenderingBestPerformanceArgs();
+                // Set BrowserSubProcessPath based on app bitness at runtime
+                settings.BrowserSubprocessPath = Path.Combine(AppDomain.CurrentDomain.SetupInformation.ApplicationBase,
+                                                       Environment.Is64BitProcess ? "x64" : "x86",
+                                                       "CefSharp.BrowserSubprocess.exe");
+                settings.WindowlessRenderingEnabled = true;
+                settings.SetOffScreenRenderingBestPerformanceArgs();
 
-            // Make sure you set performDependencyCheck false
-            Cef.Initialize(settings, performDependencyCheck: false, browserProcessHandler: null);
-            Cef.EnableHighDPISupport();
-
+                // Make sure you set performDependencyCheck false
+                Cef.Initialize(settings, performDependencyCheck: false, browserProcessHandler: null);
+                Cef.EnableHighDPISupport();
+            }
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.ApplicationExit += Application_ApplicationExit;
-            var form = new ImageGetter();
+            var form = new ImageGetter(no_browser_mode, admin_mode);
             Application.Run(form);
         }
 
@@ -96,7 +114,6 @@ namespace RtrsMapService_User
         {
             Cef.Shutdown();
         }
-
         private static Assembly Resolver(object sender, ResolveEventArgs args)
         {
             if (args.Name.StartsWith("CefSharp"))
@@ -116,7 +133,7 @@ namespace RtrsMapService_User
         }
         public static void OpenImage(string path)
         {
-            if(File.Exists(path))
+            if (File.Exists(path))
             {
                 Process.Start(path);
             }
