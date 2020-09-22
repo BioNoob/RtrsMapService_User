@@ -22,6 +22,7 @@ namespace RtrsMapService_User
 {
     public partial class SimleMapForm : Form
     {
+        public static int ServPort = 50050;
         public ChromiumWebBrowser chromeBrowser;
         SimpleHTTPServer myServer;
         string selectedimg_path = string.Empty;
@@ -120,7 +121,7 @@ namespace RtrsMapService_User
         }
         public void InitializeLocalHost()
         {
-            myServer = new SimpleHTTPServer(ServerPath, 8080);
+            myServer = new SimpleHTTPServer(ServerPath, ServPort);
         }
 
         private async void Timers_Tick(object sender, EventArgs e)
@@ -274,7 +275,7 @@ namespace RtrsMapService_User
             fileContents = fileContents.Replace("_MARKER_", icon_check.Checked.ToString().ToLower());
             fileContents = fileContents.Replace("_SQUARE_", square_check.Checked.ToString().ToLower());
             selectedimg_path = selectedimg_path.Replace("\\", "/");
-            string _path_ = "http://localhost:8080\\resources\\" + img_help_file;
+            string _path_ = $"http://localhost:{ServPort}\\resources\\" + img_help_file;
             _path_ = _path_.Replace("\\", "/");
             string web_path;
             if (string.IsNullOrEmpty(img_help_file))
@@ -520,7 +521,7 @@ namespace RtrsMapService_User
         }
         private void panel_top_MouseEnter(object sender, EventArgs e)
         {
-            this.Focus();
+            //this.Focus();
         }
 
         public void MapBorderImg_FormClosing(object sender, FormClosingEventArgs e)
@@ -531,6 +532,7 @@ namespace RtrsMapService_User
                 if (dlg == DialogResult.Yes)
                 {
                     CloseApp();
+                    StaticInfo.DoCloseChildWindow();
                 }
                 else
                     e.Cancel = true;
@@ -550,7 +552,7 @@ namespace RtrsMapService_User
             SaveSett();
             chromeBrowser.Dispose();
             myServer.Stop();
-
+            //Application.Exit();
         }
         private void WI_HI_cssSetter(Size si)
         {

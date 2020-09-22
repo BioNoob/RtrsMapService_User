@@ -29,6 +29,14 @@ namespace RtrsMapService_User
             Ev_CloseMainWindow?.Invoke();
         }
 
+
+        public delegate void CloseChildWindow();
+        public static event CloseChildWindow Ev_CloseChildWindow;
+        public static void DoCloseChildWindow()
+        {
+            Ev_CloseChildWindow?.Invoke();
+        }
+
         public delegate void TransferDataToMap(mapobj mo, Image img, int id);
         public static event TransferDataToMap Ev_TransferDataToMap;
         public static void DoTransferDataToMap(mapobj mo, Image img, int id)

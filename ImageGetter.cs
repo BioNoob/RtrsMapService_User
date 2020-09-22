@@ -29,10 +29,17 @@ namespace RtrsMapService_User
             //mbr = new SimleMapForm();
             LoadSet();
             toolStripProgressBar1.ProgressBar.Visible = false;
+            StaticInfo.Ev_CloseChildWindow += StaticInfo_Ev_CloseChildWindow;
             //mbr.Show();
             //new SimleMapForm().Show();
             mbr = new SimleMapForm();
             mbr.Show();
+            
+        }
+
+        private void StaticInfo_Ev_CloseChildWindow()
+        {
+            ImageGetter_FormClosing(this, new FormClosingEventArgs(CloseReason.FormOwnerClosing, false));
         }
 
         private void LoadSet()
@@ -191,7 +198,7 @@ namespace RtrsMapService_User
 
         private void ImageGetter_MouseEnter(object sender, EventArgs e)
         {
-            this.Focus();
+            //this.Focus();
         }
 
         private void ImageGetter_FormClosed(object sender, FormClosedEventArgs e)
@@ -212,11 +219,21 @@ namespace RtrsMapService_User
         private void ImageGetter_FormClosing(object sender, FormClosingEventArgs e)
         {
             SaveSet();
-            var dlg = MessageBox.Show("Выйти из программы?", "Выход", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-            if (dlg == DialogResult.Yes)
-                StaticInfo.DoCloseMainWindow();
+            if (e.CloseReason == CloseReason.UserClosing)
+            {
+                var dlg = MessageBox.Show("Выйти из программы?", "Выход", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (dlg == DialogResult.Yes)
+                    StaticInfo.DoCloseMainWindow();
+                else
+                    e.Cancel = true;
+            }
             else
-                e.Cancel = true;
+            {
+                e.Cancel = false;
+                this.FormClosing -= ImageGetter_FormClosing;
+                this.Close();
+            }
+                
         }
     }
 }
