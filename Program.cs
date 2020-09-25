@@ -61,17 +61,9 @@ namespace RtrsMapService_User
             //Application.SetCompatibleTextRenderingDefault(false);
             //Application.Run(new Start());
             string[] args = Environment.GetCommandLineArgs();
-            foreach (var item in args)
-            {
-                if (item.Contains("admin"))
-                    admin_mode = true;
-                else
-                    admin_mode = false;
-                if (item.Contains("noBrowser"))
-                    no_browser_mode = true;
-                else
-                    no_browser_mode = false;
-            }
+            var list = new List<string>(args);
+            admin_mode = list.Exists(t => t.Contains("admin"));
+            no_browser_mode = list.Exists(t => t.Contains("noBrowser"));
             if (!no_browser_mode)
                 AppDomain.CurrentDomain.AssemblyResolve += Resolver;
             LoadApp();
@@ -107,7 +99,7 @@ namespace RtrsMapService_User
             Application.SetCompatibleTextRenderingDefault(false);
             if (!no_browser_mode)
                 Application.ApplicationExit += Application_ApplicationExit;
-            var form = new ImageGetter(no_browser_mode, admin_mode);
+            var form = new ImageGetter(!no_browser_mode, admin_mode);
             Application.Run(form);
         }
 

@@ -221,52 +221,108 @@ namespace RtrsMapService_User
             li.map_trans1 = JsonConvert.DeserializeObject<mapobj>(baseHtml);
             t.Dispose();
             client.Dispose();
-
-
-
-            //HtmlAgilityPack.HtmlDocument HD = new HtmlAgilityPack.HtmlDocument();
-            //var web = new HtmlWeb
-            //{
-            //    AutoDetectEncoding = false,
-            //    OverrideEncoding = Encoding.UTF8,
-            //};
-            //CancellationTokenSource cts = new CancellationTokenSource(5000);
-            //HD = await web.LoadFromWebAsync(getimg + li.id_trans1, cts.Token);
-            //if (cts.IsCancellationRequested)
-            //{
-            //    li.er_string = "Время ожидания истекло";
-            //    return;
-            //}
-            //if (HD.DocumentNode.InnerHtml.Contains("404"))
-            //{
-            //    li.er_string = "Узел не найден";
-            //    return;
-            //}
-            //li.map_trans1 = JsonConvert.DeserializeObject<mapobj>(HD.DocumentNode.InnerText);
-
-
-            //using (var wb = new WebClient())
-            //{
-            //    var response = wb.DownloadString(getimg + li.id_trans1);
-            //    li.map_trans1 = JsonConvert.DeserializeObject<mapobj>(response);
-            //}
-            //if (li.id_trans2 != 0)
-            //{
-            //    using (var wb = new WebClient())
-            //    {
-            //        var response = wb.DownloadString(getimg + li.id_trans2);
-            //        li.map_trans2 = JsonConvert.DeserializeObject<mapobj>(response);
-            //    }
-            //}
         }
         public static async Task<LoadItem> GetMapInfoAsync(int id)
         {
             LoadItem li = new LoadItem();
-            //li = await GetTransmitterAsync(id);
             li.id_trans1 = id;
             await GetTransmImgAsync(li);
             return li;
         }
+
+        public void GetInfoLoadItem()
+        {
+            string q = $"https://xn--80aa2azak.xn--p1aadc.xn--p1ai/rtrs/ajax/digital?multiplex=1&node={id.ToString()}";
+            string getimg = "https://xn--80aa2azak.xn--p1aadc.xn--p1ai/rtrs/ajax/broadcast?type=digital&id=";
+
+            string html = q;
+            HtmlAgilityPack.HtmlDocument HD = new HtmlAgilityPack.HtmlDocument();
+            var web = new HtmlWeb
+            {
+                AutoDetectEncoding = false,
+                OverrideEncoding = Encoding.UTF8,
+            };
+            HD = web.Load(html);
+            var ttwe = HD.DocumentNode.Descendants("");
+            var qqwe = HD.DocumentNode.Descendants("label");
+            //2 или 1 в зависимости от количества плексов
+            int count = 0;
+            try
+            {
+                foreach (var itemq in qqwe)
+                {
+                    count++;
+                    var t = itemq.Descendants("input");
+                    var ttt = t.Where(qqq => qqq.Attributes.Contains("data-transmitter-id")).ToList();
+                    string helpers = string.Empty;
+                    if (ttt.Count > 0)
+                    {
+                        helpers = t.Select(x => x.Attributes["data-transmitter-id"].Value).SingleOrDefault();
+                    }
+                    else
+                    {
+                        count = 999;
+                    }
+                    int buf = 0;
+                    if (count == 1)
+                    {
+                        int.TryParse(helpers, out buf);
+                        id_trans1 = buf;
+                    }
+                    else if (count == 2)
+                    {
+                        int.TryParse(helpers, out buf);
+                        id_trans2 = buf;
+                    }
+                    var span = itemq.Descendants("span");
+                    var hz = span.Where(has => has.InnerText.Contains("ТВК")).ToList();
+                    if (hz.Count > 0)
+                    {
+                        var hz_select = hz.Select(x => x.InnerText).SingleOrDefault();
+                        if (count == 1)
+                            web_tvk_1plx = hz_select;
+                        else if (count == 2)
+                            web_tvk_2plx = hz_select;
+                    }
+                }
+                if (HD.DocumentNode.Descendants("h4").Any())
+                {
+                    var span_h = HD.DocumentNode.Descendants("h4").SingleOrDefault().InnerText;
+                    web_fili = span_h;
+                    var span_sp = HD.DocumentNode.Descendants("span");
+                    if (span_sp.Count() > 0)
+                        web_place = span_sp.First().InnerText;
+                }
+                if (id_trans1 != 0)
+                {
+                    using (var wb = new WebClient())
+                    {
+
+                        //wb.DownloadFile();
+                        var response = wb.DownloadString(getimg + id_trans1);
+                        map_trans1 = JsonConvert.DeserializeObject<mapobj>(response);
+                        //setlog("Tower №" + item.id + "\t" + "Recived data 1 multi" + "\t" + (DateTime.Now - starttime).ToString() + Environment.NewLine);
+                        //log_box.Text += ("Tower №" + item.id + "\t" + "Recived data 1 multi" + "\t" + (DateTime.Now - starttime).ToString()) + Environment.NewLine;
+                    }
+                }
+                if (id_trans2 != 0)
+                {
+                    using (var wb = new WebClient())
+                    {
+                        var response = wb.DownloadString(getimg + id_trans2);
+                        map_trans2 = JsonConvert.DeserializeObject<mapobj>(response);
+                        //setlog("Tower №" + item.id + "\t" + "Recived data 2 multi" + "\t" + (DateTime.Now - starttime).ToString() + Environment.NewLine);
+                        //log_box.Text += ("Tower №" + item.id + "\t" + "Recived data 2 multi" + "\t" + (DateTime.Now - starttime).ToString()) + Environment.NewLine;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+                //log_box.Text += "Ошибка " + ex.Message + "\t" + item.id + Environment.NewLine;
+            }
+        }
+
     }
     public class mapobj
     {
@@ -313,10 +369,11 @@ namespace RtrsMapService_User
     {
         [JsonProperty("data")]
         public List<LoadItem> li { get; set; }
+        //500+- мб картинок
 
         [JsonProperty("updated")]
         public int DtTime { get; set; }
-        public DateTime MultiTime { get; set; }
+        //public DateTime MultiTime { get; set; }
 
         [JsonIgnore]
         public DateTime Time
