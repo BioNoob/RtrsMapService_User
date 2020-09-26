@@ -7,6 +7,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -229,7 +230,8 @@ namespace RtrsMapService_User
             await GetTransmImgAsync(li);
             return li;
         }
-
+        public static string ExPath = System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+        public static string ImgMapPath = ExPath + "\\server\\MapImg\\";
         public void GetInfoLoadItem()
         {
             string q = $"https://xn--80aa2azak.xn--p1aadc.xn--p1ai/rtrs/ajax/digital?multiplex=1&node={id.ToString()}";
@@ -299,8 +301,10 @@ namespace RtrsMapService_User
                     {
 
                         //wb.DownloadFile();
+
                         var response = wb.DownloadString(getimg + id_trans1);
                         map_trans1 = JsonConvert.DeserializeObject<mapobj>(response);
+                        wb.DownloadFile(map_trans1.map, ImgMapPath + Path.GetFileName(map_trans1.map));
                         //setlog("Tower №" + item.id + "\t" + "Recived data 1 multi" + "\t" + (DateTime.Now - starttime).ToString() + Environment.NewLine);
                         //log_box.Text += ("Tower №" + item.id + "\t" + "Recived data 1 multi" + "\t" + (DateTime.Now - starttime).ToString()) + Environment.NewLine;
                     }
@@ -311,6 +315,7 @@ namespace RtrsMapService_User
                     {
                         var response = wb.DownloadString(getimg + id_trans2);
                         map_trans2 = JsonConvert.DeserializeObject<mapobj>(response);
+                        wb.DownloadFile(map_trans2.map, ImgMapPath +  Path.GetFileName(map_trans2.map));
                         //setlog("Tower №" + item.id + "\t" + "Recived data 2 multi" + "\t" + (DateTime.Now - starttime).ToString() + Environment.NewLine);
                         //log_box.Text += ("Tower №" + item.id + "\t" + "Recived data 2 multi" + "\t" + (DateTime.Now - starttime).ToString()) + Environment.NewLine;
                     }
