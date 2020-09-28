@@ -81,8 +81,6 @@ namespace RtrsMapService_User
 
         public string web_fili;
         public string web_place;
-        public string web_tvk_1plx;
-        public string web_tvk_2plx;
         public string er_string;
         public int GetPlexByVal(int i)
         {
@@ -151,9 +149,9 @@ namespace RtrsMapService_User
                 {
                     var hz_select = hz.Select(x => x.InnerText).SingleOrDefault();
                     if (count == 1)
-                        li.web_tvk_1plx = hz_select;
+                        li.map_trans1.web_tvk = hz_select;
                     else if (count == 2)
-                        li.web_tvk_2plx = hz_select;
+                        li.map_trans2.web_tvk = hz_select;
                 }
             }
             if (HD.DocumentNode.Descendants("h4").Any())
@@ -170,7 +168,7 @@ namespace RtrsMapService_User
         {
             string getimg = "https://xn--80aa2azak.xn--p1aadc.xn--p1ai/rtrs/ajax/broadcast?type=digital&id=";
 
-
+            UTF8Encoding utf = new UTF8Encoding();
             WebClient client = new WebClient();
             client.Proxy = null;
             client.UseDefaultCredentials = true;
@@ -202,7 +200,6 @@ namespace RtrsMapService_User
                     else
                     {
                         byte[] pageContent = t.Result;
-                        UTF8Encoding utf = new UTF8Encoding();
                         baseHtml = utf.GetString(pageContent);
                         li.er_string = string.Empty;
                     }
@@ -236,7 +233,7 @@ namespace RtrsMapService_User
         {
             string q = $"https://xn--80aa2azak.xn--p1aadc.xn--p1ai/rtrs/ajax/digital?multiplex=1&node={id.ToString()}";
             string getimg = "https://xn--80aa2azak.xn--p1aadc.xn--p1ai/rtrs/ajax/broadcast?type=digital&id=";
-
+            string tvk = string.Empty;
             string html = q;
             HtmlAgilityPack.HtmlDocument HD = new HtmlAgilityPack.HtmlDocument();
             var web = new HtmlWeb
@@ -282,9 +279,9 @@ namespace RtrsMapService_User
                     {
                         var hz_select = hz.Select(x => x.InnerText).SingleOrDefault();
                         if (count == 1)
-                            web_tvk_1plx = hz_select;
+                            tvk = hz_select;
                         else if (count == 2)
-                            web_tvk_2plx = hz_select;
+                            tvk = hz_select;
                     }
                 }
                 if (HD.DocumentNode.Descendants("h4").Any())
@@ -305,6 +302,7 @@ namespace RtrsMapService_User
                         var response = wb.DownloadString(getimg + id_trans1);
                         map_trans1 = JsonConvert.DeserializeObject<mapobj>(response);
                         wb.DownloadFile(map_trans1.map, ImgMapPath + Path.GetFileName(map_trans1.map));
+                        map_trans1.web_tvk = tvk;
                         //setlog("Tower №" + item.id + "\t" + "Recived data 1 multi" + "\t" + (DateTime.Now - starttime).ToString() + Environment.NewLine);
                         //log_box.Text += ("Tower №" + item.id + "\t" + "Recived data 1 multi" + "\t" + (DateTime.Now - starttime).ToString()) + Environment.NewLine;
                     }
@@ -316,6 +314,7 @@ namespace RtrsMapService_User
                         var response = wb.DownloadString(getimg + id_trans2);
                         map_trans2 = JsonConvert.DeserializeObject<mapobj>(response);
                         wb.DownloadFile(map_trans2.map, ImgMapPath +  Path.GetFileName(map_trans2.map));
+                        map_trans2.web_tvk = tvk;
                         //setlog("Tower №" + item.id + "\t" + "Recived data 2 multi" + "\t" + (DateTime.Now - starttime).ToString() + Environment.NewLine);
                         //log_box.Text += ("Tower №" + item.id + "\t" + "Recived data 2 multi" + "\t" + (DateTime.Now - starttime).ToString()) + Environment.NewLine;
                     }
@@ -348,6 +347,8 @@ namespace RtrsMapService_User
         public double ney { get; set; }
 
         public string web_name { get { return Path.GetFileNameWithoutExtension(map); } }
+
+        public string web_tvk { get; set; }
 
         public PointF GetCenter()
         {

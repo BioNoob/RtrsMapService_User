@@ -149,6 +149,7 @@ namespace RtrsMapService_User
             transfer_btn.Enabled = true;
             SaveSet();
             toolStripProgressBar1.ProgressBar.Visible = false;
+            GC.Collect(1,GCCollectionMode.Forced);
             //SaveSet();
         }
 

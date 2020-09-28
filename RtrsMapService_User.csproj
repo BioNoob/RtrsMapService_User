@@ -162,6 +162,9 @@
   <ItemGroup>
     <EmbeddedResource Include="MapBuild_ext.html" />
     <None Include="Resources\Infinity.gif" />
+    <Content Include="server\404.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="server\dist\bundle.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

@@ -134,13 +134,16 @@ namespace RtrsMapService_User.Class
         private void Listen()
         {
             _listener = new HttpListener();
-            _listener.Prefixes.Add("http://127.0.0.1:" + _port.ToString() + "/");
+            string q = "http://localhost:" + _port.ToString() + "/";//_port.ToString() + "/";
+            _listener.Prefixes.Add(q);
+            //_listener.Prefixes.Add("http://localhost/:" + _port.ToString() + "/");//http://127.0.0.1:" + _port.ToString() + "/");
             try
             {
                 _listener.Start();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 var t = System.Windows.Forms.MessageBox.Show("Локальный сервер не может запуститься без прав администратора на вашей машине", "Ошибка", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Error);
                 if (t == System.Windows.Forms.DialogResult.OK)
                     StaticInfo.ThrowServerErr();
@@ -212,7 +215,34 @@ namespace RtrsMapService_User.Class
             }
             else
             {
-                context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                try
+                {
+                    context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                    filename = _rootDirectory + "\\404.html"; //Path.Combine(_rootDirectory, "\\404.html");
+                    Stream input = new FileStream(filename, FileMode.Open);
+
+                    //Adding permanent http response headers
+                    string mime;
+                    context.Response.ContentType = _mimeTypeMappings.TryGetValue(Path.GetExtension(filename), out mime) ? mime : "application/octet-stream";
+                    context.Response.ContentLength64 = input.Length;
+                    context.Response.AddHeader("Date", DateTime.Now.ToString("r"));
+                    context.Response.AddHeader("Last-Modified", System.IO.File.GetLastWriteTime(filename).ToString("r"));
+
+                    byte[] buffer = new byte[1024 * 16];
+                    int nbytes;
+                    while ((nbytes = input.Read(buffer, 0, buffer.Length)) > 0)
+                        context.Response.OutputStream.Write(buffer, 0, nbytes);
+                    input.Close();
+
+                    context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                    context.Response.OutputStream.Flush();
+                }
+
+                catch (Exception ex)
+                {
+                    context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    Debug.WriteLine(ex.Message);
+                }
             }
 
             context.Response.OutputStream.Close();

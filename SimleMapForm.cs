@@ -22,7 +22,7 @@ namespace RtrsMapService_User
 {
     public partial class SimleMapForm : Form
     {
-        public static int ServPort = 50050;
+        public static int ServPort = 1515;
         public ChromiumWebBrowser chromeBrowser;
         SimpleHTTPServer myServer;
         string selectedimg_path = string.Empty;
@@ -107,7 +107,7 @@ namespace RtrsMapService_User
 
         private void StaticInfo_ThrowServerError()
         {
-            this.Invoke(new Action(() => { Close(); }));
+            this.Invoke(new Action(() => { StaticInfo_Ev_CloseMainWindow(); }));//Close(); }));
             this.Invoke(new Action(() => { Dispose(); }));
         }
 
