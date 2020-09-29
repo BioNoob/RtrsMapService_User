@@ -99,12 +99,6 @@
     <Compile Include="ImageGetter.Designer.cs">
       <DependentUpon>ImageGetter.cs</DependentUpon>
     </Compile>
-    <Compile Include="MapBorderImg.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="MapBorderImg.Designer.cs">
-      <DependentUpon>MapBorderImg.cs</DependentUpon>
-    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SimleMapForm.cs">
@@ -119,9 +113,6 @@
     <EmbeddedResource Include="ImageGetter.resx">
       <DependentUpon>ImageGetter.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MapBorderImg.resx">
-      <DependentUpon>MapBorderImg.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -135,6 +126,12 @@
     <EmbeddedResource Include="SimleMapForm.resx">
       <DependentUpon>SimleMapForm.cs</DependentUpon>
     </EmbeddedResource>
+    <None Include="csv_table\mult1.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="csv_table\mult2.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -162,6 +159,10 @@
   <ItemGroup>
     <EmbeddedResource Include="MapBuild_ext.html" />
     <None Include="Resources\Infinity.gif" />
+    <None Include="Resources\forward.png" />
+    <None Include="Resources\back.png" />
+    <None Include="Resources\refresh.png" />
+    <EmbeddedResource Include="Resources\mult.html" />
     <Content Include="server\404.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

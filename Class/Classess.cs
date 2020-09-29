@@ -44,6 +44,12 @@ namespace RtrsMapService_User
         {
             Ev_TransferDataToMap?.Invoke(mo, img, id);
         }
+        public enum MultiSelect
+        {
+            both = 0,
+            first = 1,
+            second = 2
+        }
     }
 
     public class ComboboxItem
@@ -77,93 +83,94 @@ namespace RtrsMapService_User
         public mapobj map_trans1 { get; set; }
         [JsonProperty("map_trans2")]
         public mapobj map_trans2 { get; set; }
+
+        public string web_fili { get; set; }
+        public string web_place { get; set; }
+        public string er_string { get; set; }
         public string filial { get; set; }
 
-        public string web_fili;
-        public string web_place;
-        public string er_string;
-        public int GetPlexByVal(int i)
-        {
-            if (i == id_trans1)
-                return 0;
-            if (i == id_trans2)
-                return 1;
-            else
-                return 999;
-        }
-        public static async Task<LoadItem> GetTransmitterAsync(int id)
-        {
-            string q = $"https://xn--80aa2azak.xn--p1aadc.xn--p1ai/rtrs/ajax/digital?multiplex=1&node={id.ToString()}";
-            //
-            LoadItem li = new LoadItem();
-            string html = q;
-            HtmlAgilityPack.HtmlDocument HD = new HtmlAgilityPack.HtmlDocument();
-            var web = new HtmlWeb
-            {
-                AutoDetectEncoding = false,
-                OverrideEncoding = Encoding.UTF8,
-            };
-            CancellationTokenSource cts = new CancellationTokenSource(5000);
-            HD = await web.LoadFromWebAsync(html, cts.Token);
-            if (cts.IsCancellationRequested)
-            {
-                li.er_string = "Время ожидания истекло";
-                return li;
-            }
-            if (HD.DocumentNode.InnerHtml.Contains("error"))
-            {
-                li.er_string = "Узел не найден";
-                return li;
-            }
-            var qqwe = HD.DocumentNode.Descendants("label");
-            //2 или 1 в зависимости от количества плексов
-            int count = 0;
-            foreach (var itemq in qqwe)
-            {
-                count++;
-                var t = itemq.Descendants("input");
-                var ttt = t.Where(qqq => qqq.Attributes.Contains("data-transmitter-id")).ToList();
-                string helpers = string.Empty;
-                if (ttt.Count > 0)
-                {
-                    helpers = t.Select(x => x.Attributes["data-transmitter-id"].Value).SingleOrDefault();
-                }
-                else
-                {
-                    count = 999;
-                }
-                int buf = 0;
-                if (count == 1)
-                {
-                    int.TryParse(helpers, out buf);
-                    li.id_trans1 = buf;
-                }
-                else if (count == 2)
-                {
-                    int.TryParse(helpers, out buf);
-                    li.id_trans2 = buf;
-                }
-                var span = itemq.Descendants("span");
-                var hz = span.Where(has => has.InnerText.Contains("ТВК")).ToList();
-                if (hz.Count > 0)
-                {
-                    var hz_select = hz.Select(x => x.InnerText).SingleOrDefault();
-                    if (count == 1)
-                        li.map_trans1.web_tvk = hz_select;
-                    else if (count == 2)
-                        li.map_trans2.web_tvk = hz_select;
-                }
-            }
-            if (HD.DocumentNode.Descendants("h4").Any())
-            {
-                var span_h = HD.DocumentNode.Descendants("h4").SingleOrDefault().InnerText;
-                li.web_fili = span_h;
-                var span_sp = HD.DocumentNode.Descendants("span");
-                if (span_sp.Count() > 0)
-                    li.web_place = span_sp.First().InnerText;
-            }
-            return li;
-        }
+        //public int GetPlexByVal(int i)
+        //{
+        //    if (i == id_trans1)
+        //        return 0;
+        //    if (i == id_trans2)
+        //        return 1;
+        //    else
+        //        return 999;
+        //}
+        //public static async Task<LoadItem> GetTransmitterAsync(int id)
+        //{
+        //    string q = $"https://xn--80aa2azak.xn--p1aadc.xn--p1ai/rtrs/ajax/digital?multiplex=1&node={id.ToString()}";
+        //    //
+        //    LoadItem li = new LoadItem();
+        //    string html = q;
+        //    HtmlAgilityPack.HtmlDocument HD = new HtmlAgilityPack.HtmlDocument();
+        //    var web = new HtmlWeb
+        //    {
+        //        AutoDetectEncoding = false,
+        //        OverrideEncoding = Encoding.UTF8,
+        //    };
+        //    CancellationTokenSource cts = new CancellationTokenSource(5000);
+        //    HD = await web.LoadFromWebAsync(html, cts.Token);
+        //    if (cts.IsCancellationRequested)
+        //    {
+        //        li.er_string = "Время ожидания истекло";
+        //        return li;
+        //    }
+        //    if (HD.DocumentNode.InnerHtml.Contains("error"))
+        //    {
+        //        li.er_string = "Узел не найден";
+        //        return li;
+        //    }
+        //    var qqwe = HD.DocumentNode.Descendants("label");
+        //    //2 или 1 в зависимости от количества плексов
+        //    int count = 0;
+        //    foreach (var itemq in qqwe)
+        //    {
+        //        count++;
+        //        var t = itemq.Descendants("input");
+        //        var ttt = t.Where(qqq => qqq.Attributes.Contains("data-transmitter-id")).ToList();
+        //        string helpers = string.Empty;
+        //        if (ttt.Count > 0)
+        //        {
+        //            helpers = t.Select(x => x.Attributes["data-transmitter-id"].Value).SingleOrDefault();
+        //        }
+        //        else
+        //        {
+        //            count = 999;
+        //        }
+        //        int buf = 0;
+        //        if (count == 1)
+        //        {
+        //            int.TryParse(helpers, out buf);
+        //            li.id_trans1 = buf;
+        //        }
+        //        else if (count == 2)
+        //        {
+        //            int.TryParse(helpers, out buf);
+        //            li.id_trans2 = buf;
+        //        }
+        //        var span = itemq.Descendants("span");
+        //        var hz = span.Where(has => has.InnerText.Contains("ТВК")).ToList();
+        //        if (hz.Count > 0)
+        //        {
+        //            var hz_select = hz.Select(x => x.InnerText).SingleOrDefault();
+        //            if (count == 1)
+        //                li.map_trans1.web_tvk = hz_select;
+        //            else if (count == 2)
+        //                li.map_trans2.web_tvk = hz_select;
+        //        }
+        //    }
+        //    if (HD.DocumentNode.Descendants("h4").Any())
+        //    {
+        //        var span_h = HD.DocumentNode.Descendants("h4").SingleOrDefault().InnerText;
+        //        li.web_fili = span_h;
+        //        var span_sp = HD.DocumentNode.Descendants("span");
+        //        if (span_sp.Count() > 0)
+        //            li.web_place = span_sp.First().InnerText;
+        //    }
+        //    return li;
+        //}
         public static async Task GetTransmImgAsync(LoadItem li)
         {
             string getimg = "https://xn--80aa2azak.xn--p1aadc.xn--p1ai/rtrs/ajax/broadcast?type=digital&id=";
@@ -228,7 +235,7 @@ namespace RtrsMapService_User
             return li;
         }
         public static string ExPath = System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-        public static string ImgMapPath = ExPath + "\\server\\MapImg\\";
+        public static string ImgMapPath = ExPath + "\\server\\mapimg\\";
         public void GetInfoLoadItem()
         {
             string q = $"https://xn--80aa2azak.xn--p1aadc.xn--p1ai/rtrs/ajax/digital?multiplex=1&node={id.ToString()}";
@@ -296,15 +303,10 @@ namespace RtrsMapService_User
                 {
                     using (var wb = new WebClient())
                     {
-
-                        //wb.DownloadFile();
-
                         var response = wb.DownloadString(getimg + id_trans1);
                         map_trans1 = JsonConvert.DeserializeObject<mapobj>(response);
                         wb.DownloadFile(map_trans1.map, ImgMapPath + Path.GetFileName(map_trans1.map));
                         map_trans1.web_tvk = tvk;
-                        //setlog("Tower №" + item.id + "\t" + "Recived data 1 multi" + "\t" + (DateTime.Now - starttime).ToString() + Environment.NewLine);
-                        //log_box.Text += ("Tower №" + item.id + "\t" + "Recived data 1 multi" + "\t" + (DateTime.Now - starttime).ToString()) + Environment.NewLine;
                     }
                 }
                 if (id_trans2 != 0)
@@ -315,18 +317,18 @@ namespace RtrsMapService_User
                         map_trans2 = JsonConvert.DeserializeObject<mapobj>(response);
                         wb.DownloadFile(map_trans2.map, ImgMapPath +  Path.GetFileName(map_trans2.map));
                         map_trans2.web_tvk = tvk;
-                        //setlog("Tower №" + item.id + "\t" + "Recived data 2 multi" + "\t" + (DateTime.Now - starttime).ToString() + Environment.NewLine);
-                        //log_box.Text += ("Tower №" + item.id + "\t" + "Recived data 2 multi" + "\t" + (DateTime.Now - starttime).ToString()) + Environment.NewLine;
                     }
                 }
             }
             catch (Exception ex)
             {
                 throw ex;
-                //log_box.Text += "Ошибка " + ex.Message + "\t" + item.id + Environment.NewLine;
             }
         }
-
+        public string PrintVar()
+        {
+            return $"a{id}";
+        }
     }
     public class mapobj
     {
@@ -349,6 +351,8 @@ namespace RtrsMapService_User
         public string web_name { get { return Path.GetFileNameWithoutExtension(map); } }
 
         public string web_tvk { get; set; }
+        [JsonIgnore]
+        private string png_name { get { return Path.GetFileName(map); } }
 
         public PointF GetCenter()
         {
@@ -363,11 +367,11 @@ namespace RtrsMapService_User
             {
                 string coord = "[[" + swx.ToString(CultureInfo.InvariantCulture) + "," + swy.ToString(CultureInfo.InvariantCulture) + "],[" +
     nex.ToString(CultureInfo.InvariantCulture) + "," + ney.ToString(CultureInfo.InvariantCulture) + "]]";
-                string outs = $"L.imageOverlay('{map}', {coord});";
+                string outs = $"L.imageOverlay('/mapimg/{png_name}', {coord});";
                 return outs;
             }
             else
-                return $"L.imageOverlay('{map}', [[0,0],[0,0]]);";
+                return $"L.imageOverlay('/mapimg/{png_name}', [[0,0],[0,0]]);";
 
         }
     }
