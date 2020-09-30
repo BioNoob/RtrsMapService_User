@@ -305,6 +305,15 @@ namespace RtrsMapService_User
                     {
                         var response = wb.DownloadString(getimg + id_trans1);
                         map_trans1 = JsonConvert.DeserializeObject<mapobj>(response);
+
+                        /*
+                         * Проверяем есть ли файл, если нет грузим
+                         * Если есть
+                         * грузим сравниваем, пишем.
+                         */
+
+
+
                         wb.DownloadFile(map_trans1.map, ImgMapPath + Path.GetFileName(map_trans1.map));
                         map_trans1.web_tvk = tvk;
                     }
