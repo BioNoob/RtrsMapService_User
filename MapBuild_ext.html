@@ -39,6 +39,8 @@
     <script src="../dist/bundle.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin="">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://api-maps.yandex.ru/2.1/?lang=en_RU&amp;apikey=36d0fe36-55fc-4f6d-ac72-feb2f0c2124c" type="text/javascript"></script>
+    <script src="../dist/Yandex.js"></script>
     <script>
         var myIconRED = L.icon({
             iconUrl: '/ico/tower_ico_red.png',
@@ -159,8 +161,16 @@
         else {
             var baseMaps = { "Зона": b2 };
         }
+        var y1 = L.yandex({ type: 'satellite', attribution: 'Данная карта предназначена для внутреннего пользования  <a href="https://rtrs.ru/">ФГУП «Российская телевизионная и радиовещательная сеть» (РТРС)</a>' });
+        var y4 = L.yandex({ type: 'map~vector', attribution: 'Данная карта предназначена для внутреннего пользования  <a href="https://rtrs.ru/">ФГУП «Российская телевизионная и радиовещательная сеть» (РТРС)</a>' });
+        var y3 = L.yandex({ type: 'hybrid', attribution: 'Данная карта предназначена для внутреннего пользования  <a href="https://rtrs.ru/">ФГУП «Российская телевизионная и радиовещательная сеть» (РТРС)</a>' });
+        var y2 = L.yandex({ type: 'map', attribution: 'Данная карта предназначена для внутреннего пользования  <a href="https://rtrs.ru/">ФГУП «Российская телевизионная и радиовещательная сеть» (РТРС)</a>' });
+        y1.on('load', deletecopy);
+        y2.on('load', deletecopy);
+        y3.on('load', deletecopy);
+        y4.on('load', deletecopy);
 
-        var overlayMaps = { "Фон": c1, "Карта(спутник)": c5, "Карта(гибрид)": c4, "Карта(улицы)": c2, "Карта(земля)": c3 };
+        var overlayMaps = { "Фон": c1, "Карта гугл(спутник)": c5, "Карта гугл(гибрид)": c4, "Карта гугл(улицы)": c2, "Карта гугл(земля)": c3, "Карта яндекс(спутник)": y1, "Карта яндекс(улицы)": y2, "Карта яндекс(гибрид)": y3, "Карта яндекс(вектор)": y4 };
         var layer_ctrl = L.control.layers(overlayMaps, baseMaps);//.addTo(map);
         layer_ctrl.addTo(map);
         map.setMaxBounds(qew);
@@ -173,9 +183,15 @@
             exportOnly: true,
             hideControlContainer: true
         }).addTo(map);
-        c4.addTo(map);
+        y3.addTo(map);
         function manualPrint(e) {
             printer.printMap('CurrentSize', e)
+        }
+        function deletecopy(event) {
+            var ts = document.getElementsByClassName("ymaps-2-1-77-copyrights-pane");
+            while (ts.length > 0) {
+                ts[0].parentNode.removeChild(ts[0]);
+            }
         }
     </script>
 </body>
