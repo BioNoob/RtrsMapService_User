@@ -5,11 +5,13 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static RtrsMapService_User.StaticInfo;
@@ -25,6 +27,8 @@ namespace RtrsMapService_User
         static string htmlplex1path = LoadItem.ExPath + "\\server\\resources\\1ый_мульт.html";
         static string htmlplex2path = LoadItem.ExPath + "\\server\\resources\\2ой_мульт.html";
         public Data ActualData { get; set; }
+        public List<ImgItemInfo> ServerImgList { get; set; }
+
         public DateTime starttime;
         BindingSource bss;
         public AdminForm()
@@ -42,7 +46,6 @@ namespace RtrsMapService_User
             base_dgrv.Columns[2].DataPropertyName = "id_trans2";
             this.Load += AdminForm_Load;
             search_rez = new List<Point>();
-
         }
 
         private void AdminForm_Load(object sender, EventArgs e)
@@ -110,13 +113,74 @@ namespace RtrsMapService_User
             base_dgrv.Refresh();
             SaveJson(ActualData);
         }
+
         #endregion
         #region PLEXLOADER
-        private void btn_download_multi_Click(object sender, EventArgs e)
+        private async Task<List<ImgItemInfo>> ForImgCheckLoader()
+        {
+            List<ImgItemInfo> ListIII = new List<ImgItemInfo>();
+            try
+            {
+                HtmlAgilityPack.HtmlDocument HD = new HtmlAgilityPack.HtmlDocument();
+                using (var wb = new WebClient())
+                {
+                    var response = await wb.DownloadStringTaskAsync("https://xn--80aa2azak.xn--p1aadc.xn--p1ai//images//map/?C=M;O=D");
+                    HD.LoadHtml(response);
+                }
+                bool a = false, b = false;
+                DateTime dt = new DateTime();
+                int i = 0;
+                string nm = string.Empty;
+                foreach (HtmlNode table in HD.DocumentNode.SelectNodes("//table"))
+                {
+                    foreach (HtmlNode row in table.SelectNodes("tr"))
+                    {
+                        foreach (HtmlNode cell in row.SelectNodes("th|td"))
+                        {
+                            var cel = cell.InnerText.Trim();
+                            if (cel.Contains(".png") | cel.Contains(".PNG") | cel.Contains(".gif") | cel.Contains(".GIF") |
+                                cel.Contains(".jpg") | cel.Contains(".JPG"))
+                            {
+                                nm = cel;
+                                a = true;
+                            }
+                            if (Regex.IsMatch(cel, @"^\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}$"))
+                            {
+                                dt = DateTime.ParseExact(cel, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                                b = true;
+                            }
+                            if (a && b)
+                            {
+                                ImgItemInfo iii = new ImgItemInfo(nm, dt);
+                                ListIII.Add(iii);
+                                nm = string.Empty;
+                                dt = new DateTime();
+                                a = b = false;
+                            }
+                        }
+                        i++;
+                    }
+                }
+                return ListIII;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+            finally
+            {
+                GC.Collect();
+            }
+
+        }
+        private async void btn_download_multi_Click(object sender, EventArgs e)
         {
             progressBar1.Value = 0;
-            progressBar1.Maximum = ActualData.li.Count;
+            progressBar1.Maximum = ActualData.li.Count + 1;
             setlog("Загрузка информации начата. Время начала: " + DateTime.Now.ToString() + Environment.NewLine);
+            ServerImgList =  await ForImgCheckLoader();
+            setProgress();
+            setlog($"Загружен список изображений с сервера. Количесвто изображений {ServerImgList.Count}" + Environment.NewLine);
             if (!Directory.Exists(LoadItem.ImgMapPath))
             {
                 Directory.CreateDirectory(LoadItem.ImgMapPath);
@@ -134,7 +198,7 @@ namespace RtrsMapService_User
                 item.Start();
             }
             Task.WaitAll(t);
-            setlog($"Загрузка инофрмации о мультиплексах завершена. Время завершения: {DateTime.Now.ToString()}\n");
+            setlog($"Загрузка инофрмации о мультиплексах завершена. Время завершения: {DateTime.Now}"+ Environment.NewLine);
             SaveJson(ActualData);
         }
         private Task<bool> GetLoadItemInfo_T(List<LoadItem> li)
@@ -146,7 +210,7 @@ namespace RtrsMapService_User
                     try
                     {
                         Task.Delay(10);
-                        item.GetInfoLoadItem();
+                        item.GetInfoLoadItem(ServerImgList);
                         base_dgrv.Invoke(new Action(() => { bss.DataSource = ActualData.li; bss.ResetBindings(false); base_dgrv.Refresh(); }));
                         if (item.id_trans1 != 0)
                             setlog("Tower №" + item.id + "\t" + "Recived data 1 multi" + "\t" + (DateTime.Now - starttime).ToString() + Environment.NewLine);
@@ -477,7 +541,8 @@ namespace RtrsMapService_User
                 helps += $"\"{item}\": b{scht},";
                 scht++;
             }
-            string ending_fin = $"var baseMaps = {{{helps}}};\n\tvar overlayMaps ={{\"Фон\": c1,\"Карта(спутник)\": c5,\"Карта(гибрид)\": c4, \"Карта(улицы)\": c2,\"Карта(земля)\": c3}};\n\tL.control.layers(overlayMaps, baseMaps).addTo(mapQ3);\n\t";
+            string ending_fin = $"var baseMaps = {{{helps}}};\n\tvar overlayMaps ={{\"Фон\": c1,\"Карта гугл(спутник)\": c5,\"Карта гугл(гибрид)\": c4, \"Карта гугл(улицы)\": c2,\"Карта гугл(земля)\": c3,\""+
+                "Карта яндекс(спутник)\": y1, \"Карта яндекс(улицы)\": y2, \"Карта яндекс(гибрид)\": y3, \"Карта яндекс(вектор)\": y4 }};\n\tL.control.layers(overlayMaps, baseMaps).addTo(mapQ3);\n\t";
             setlog("Запуск процесса распределения" + Environment.NewLine);
             foreach (var item in dta.li)
             {

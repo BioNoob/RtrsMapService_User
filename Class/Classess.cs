@@ -67,6 +67,25 @@ namespace RtrsMapService_User
             return Text;
         }
     }
+    public class ImgItemInfo
+    {
+        public string name { get; set; }
+        public DateTime dt { get; set; }
+
+        public ImgItemInfo(string _nm, DateTime _dt)
+        {
+            name = _nm;
+            dt = _dt;
+        }
+        public override string ToString()
+        {
+            return $"name is {name}. dt is {dt.ToString()}";
+        }
+        public void comparre(string img_nm, DateTime dt)
+        {
+
+        }
+    }
     public class LoadItem
     {
         [JsonProperty("id")]
@@ -88,6 +107,8 @@ namespace RtrsMapService_User
         public string web_place { get; set; }
         public string er_string { get; set; }
         public string filial { get; set; }
+
+
 
         //public int GetPlexByVal(int i)
         //{
@@ -197,9 +218,9 @@ namespace RtrsMapService_User
                                 li.er_string = "Мульт не найден";
                                 return;
                             }
-                            if(t.Exception.InnerException.Message.Contains("407"))
+                            if (t.Exception.InnerException.Message.Contains("407"))
                             {
-                                li.er_string = "Ошибка доступа к сайту из за прокси сервера на вашей машине";
+                                li.er_string = "Ошибка доступа к сайту из за прокси сервера на вашем компьютере";
                                 return;
                             }
                         }
@@ -236,7 +257,7 @@ namespace RtrsMapService_User
         }
         public static string ExPath = System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
         public static string ImgMapPath = ExPath + "\\server\\mapimg\\";
-        public void GetInfoLoadItem()
+        public void GetInfoLoadItem(List<ImgItemInfo> list)
         {
             string q = $"https://xn--80aa2azak.xn--p1aadc.xn--p1ai/rtrs/ajax/digital?multiplex=1&node={id.ToString()}";
             string getimg = "https://xn--80aa2azak.xn--p1aadc.xn--p1ai/rtrs/ajax/broadcast?type=digital&id=";
@@ -249,7 +270,6 @@ namespace RtrsMapService_User
                 OverrideEncoding = Encoding.UTF8,
             };
             HD = web.Load(html);
-            var ttwe = HD.DocumentNode.Descendants("");
             var qqwe = HD.DocumentNode.Descendants("label");
             //2 или 1 в зависимости от количества плексов
             int count = 0;
@@ -305,16 +325,7 @@ namespace RtrsMapService_User
                     {
                         var response = wb.DownloadString(getimg + id_trans1);
                         map_trans1 = JsonConvert.DeserializeObject<mapobj>(response);
-
-                        /*
-                         * Проверяем есть ли файл, если нет грузим
-                         * Если есть
-                         * грузим сравниваем, пишем.
-                         */
-
-
-
-                        wb.DownloadFile(map_trans1.map, ImgMapPath + Path.GetFileName(map_trans1.map));
+                        ImgChecker(list, Path.GetFileName(map_trans1.map));
                         map_trans1.web_tvk = tvk;
                     }
                 }
@@ -324,7 +335,7 @@ namespace RtrsMapService_User
                     {
                         var response = wb.DownloadString(getimg + id_trans2);
                         map_trans2 = JsonConvert.DeserializeObject<mapobj>(response);
-                        wb.DownloadFile(map_trans2.map, ImgMapPath +  Path.GetFileName(map_trans2.map));
+                        ImgChecker(list, Path.GetFileName(map_trans2.map));
                         map_trans2.web_tvk = tvk;
                     }
                 }
@@ -332,6 +343,23 @@ namespace RtrsMapService_User
             catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+        private void ImgChecker(List<ImgItemInfo> list, string path)
+        {
+            string withIMG = ImgMapPath + path;
+            WebClient wb = new WebClient();
+            if (!File.Exists(withIMG))
+            {
+                wb.DownloadFile(map_trans1.map, withIMG);
+            }
+            else
+            {
+                DateTime dt = File.GetLastWriteTime(withIMG);
+                if (list.Where(l => l.name == path).Single().dt > dt)
+                {
+                    wb.DownloadFile(map_trans1.map, withIMG);
+                }
             }
         }
         public string PrintVar()

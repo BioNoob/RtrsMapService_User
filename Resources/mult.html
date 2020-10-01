@@ -84,6 +84,17 @@
         function manualPrint(e) {
             printer.printMap('CurrentSize', e)
         }
+        map.on('overlayadd', hih);
+
+        function hih(event) { //HZ ZA RABOTU
+            var w = event.layer.getLayers();
+            var arr = new Array();
+            for (var i = 0; i < w.length; i++) {
+                var a = w[i]._bounds;
+                arr.push(a);
+            }
+            map.fitBounds(arr);
+        }
 
         var command = L.control({ position: 'bottomleft' });
         command.onAdd = function (map) {
