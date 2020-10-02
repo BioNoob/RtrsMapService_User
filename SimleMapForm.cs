@@ -130,6 +130,9 @@ namespace RtrsMapService_User
             coordplacer(t);
         }
 
+        string LastLayerName = string.Empty;
+
+
         private void coordplacer(string text)
         {
             Task st = new Task(() =>
@@ -140,6 +143,8 @@ namespace RtrsMapService_User
                 var img_center = t_list.Where(t => t.Contains("imgcenter")).SingleOrDefault();
                 var zone_center = t_list.Where(t => t.Contains("zonecenter")).SingleOrDefault();
                 var zone_pixel = t_list.Where(t => t.Contains("zonepixel")).SingleOrDefault();
+                var currlayer = t_list.Where(t => t.Contains("currlayer")).SingleOrDefault();
+                LastLayerName = currlayer.Replace("currlayer=", "");
                 if (string.IsNullOrEmpty(img_border))
                     return;
                 img_border = img_border.Replace("imgborder=", "");

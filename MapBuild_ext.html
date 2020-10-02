@@ -28,6 +28,7 @@
     <div class="container">
 
         <div id="map" style="width: X; height: Y"></div>
+        <div id="currlayer" class="top-left"></div>
         <div id="imgborder" class="top-left"></div>
         <div id="zoneborder" class="top-left"></div>
         <div id="imgcenter" class="top-left"></div>
@@ -184,6 +185,10 @@
             hideControlContainer: true
         }).addTo(map);
         y3.addTo(map);
+        document.getElementById("currlayer").textContent = y3.name;
+        map.on('baselayerchange', changelayer);
+
+
         function manualPrint(e) {
             printer.printMap('CurrentSize', e)
         }
@@ -192,6 +197,9 @@
             while (ts.length > 0) {
                 ts[0].parentNode.removeChild(ts[0]);
             }
+        }
+        function changelayer(event) {
+            document.getElementById("currlayer").textContent = "currlayer=" + event.name;
         }
     </script>
 </body>

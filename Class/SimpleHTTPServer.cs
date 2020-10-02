@@ -133,23 +133,29 @@ namespace RtrsMapService_User.Class
 
         private void Listen()
         {
-            _listener = new HttpListener();
-            string q = "http://localhost:" + _port.ToString() + "/";//_port.ToString() + "/";
-            _listener.Prefixes.Add(q);
-            //_listener.Prefixes.Add("http://localhost/:" + _port.ToString() + "/");//http://127.0.0.1:" + _port.ToString() + "/");
-            try
+            int clone_port = _port;
+            while (true)
             {
-                _listener.Start();
+                try
+                {
+                    _listener = new HttpListener();
+                    string q = "http://localhost:" + _port.ToString() + "/";
+                    _listener.Prefixes.Add(q);
+                    _listener.Start();
+                }
+                catch (Exception)
+                {
+                    if(clone_port - _port > 20)
+                    {
+                        var t = System.Windows.Forms.MessageBox.Show($"Попытка запуска сервера на портах {_port}:{clone_port} провалена.\nПовторите запуск в режиме администратора", "Ошибка", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Error);
+                        if (t == System.Windows.Forms.DialogResult.OK)
+                            StaticInfo.ThrowServerErr();
+                        return;
+                    }
+                    _port++;
+                }
+                break;
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                var t = System.Windows.Forms.MessageBox.Show("Локальный сервер не может запуститься без прав администратора на вашей машине", "Ошибка", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Error);
-                if (t == System.Windows.Forms.DialogResult.OK)
-                    StaticInfo.ThrowServerErr();
-                return;
-            }
-
             while (true)
             {
                 try
