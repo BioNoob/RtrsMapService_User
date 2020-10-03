@@ -170,6 +170,7 @@
         y2.on('load', deletecopy);
         y3.on('load', deletecopy);
         y4.on('load', deletecopy);
+        y3.on('add', changelayer);
 
         var overlayMaps = { "Фон": c1, "Карта гугл(спутник)": c5, "Карта гугл(гибрид)": c4, "Карта гугл(улицы)": c2, "Карта гугл(земля)": c3, "Карта яндекс(спутник)": y1, "Карта яндекс(улицы)": y2, "Карта яндекс(гибрид)": y3, "Карта яндекс(вектор)": y4 };
         var layer_ctrl = L.control.layers(overlayMaps, baseMaps);//.addTo(map);
