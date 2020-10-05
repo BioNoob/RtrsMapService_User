@@ -131,6 +131,7 @@ namespace RtrsMapService_User
         public string web_fili { get; set; }
         public string web_place { get; set; }
         public string er_string { get; set; }
+        
         public string filial { get; set; }
 
 

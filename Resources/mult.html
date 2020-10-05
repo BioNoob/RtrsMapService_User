@@ -14,6 +14,7 @@
     <script src="https://cdn.jsdelivr.net/npm/leaflet-easybutton@2/src/easy-button.js"></script>
     <script src="https://api-maps.yandex.ru/2.1/?lang=en_RU&amp;apikey=36d0fe36-55fc-4f6d-ac72-feb2f0c2124c" type="text/javascript"></script>
     <script src="../dist/Yandex.js"></script>
+    <script src="../dist/bundle.js"></script>
     <style>
         html, body {
             height: 100%;
@@ -38,7 +39,6 @@
 <body>
     <div id="mapid3"></div>
     <p></p>
-    <script src="../dist/bundle.js"></script>
     <script>
         var myIconRED = L.icon({
             iconUrl: 'https://xn--80aa2azak.xn--p1aadc.xn--p1ai/images/icon/multiplex/2/icon.png',
@@ -84,7 +84,7 @@
         function manualPrint(e) {
             printer.printMap('CurrentSize', e)
         }
-        map.on('overlayadd', hih);
+        mapQ3.on('overlayadd', hih);
 
         function hih(event) { //HZ ZA RABOTU
             var w = event.layer.getLayers();
@@ -93,7 +93,7 @@
                 var a = w[i]._bounds;
                 arr.push(a);
             }
-            map.fitBounds(arr);
+            mapQ3.fitBounds(arr);
         }
 
         var command = L.control({ position: 'bottomleft' });
@@ -109,7 +109,7 @@
             </div>`;
             return div;
         };
-        command.addTo(map); //your map variable
+        command.addTo(mapQ3); //your map variable
         function toggleFunction() {
             var x = document.getElementById('new_width').value + 'px';
             var y = document.getElementById('new_height').value + 'px';
@@ -117,9 +117,9 @@
             document.documentElement.style.height = y;
             document.body.style.height = y;
             document.body.style.width = x;
-            document.getElementById("map").style.height = y;
-            document.getElementById("map").style.width = x;
-            map.invalidateSize(true);
+            document.getElementById("mapid3").style.height = y;
+            document.getElementById("mapid3").style.width = x;
+            mapQ3.invalidateSize(true);
         }
         function deletecopy(event) {
             var ts = document.getElementsByClassName("ymaps-2-1-77-copyrights-pane");

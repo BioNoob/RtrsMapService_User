@@ -22,8 +22,8 @@ namespace RtrsMapService_User
         public static string JsonPath = LoadItem.ExPath + "\\rtrsjson.json";
         static string mult1path = LoadItem.ExPath + "\\csv_table\\mult1.csv";
         static string mult2path = LoadItem.ExPath + "\\csv_table\\mult2.csv";
-        static string htmlplex1path = LoadItem.ExPath + "\\server\\resources\\1ый_мульт.html";
-        static string htmlplex2path = LoadItem.ExPath + "\\server\\resources\\2ой_мульт.html";
+        static string htmlplex1path = LoadItem.ExPath + "\\server\\resources\\1st_mult.html";
+        static string htmlplex2path = LoadItem.ExPath + "\\server\\resources\\2end_mult.html";
         public Data ActualData { get; set; }
         public List<ImgItemInfo> ServerImgList { get; set; }
         Timer _Timer { get; set; }
@@ -45,28 +45,6 @@ namespace RtrsMapService_User
             _Timer = new Timer() { Interval = 100000 };
             _Timer.Tick += _Timer_Tick;
             StaticInfo.DoGetServerState();
-        }
-
-        private void AdminForm_Ev_ResponseServerState(SimpleHTTPServer state)
-        {
-            if (state.State)
-            {
-                status_server_txt.Text = "Запущен";
-                ServPort = state.Port;
-                port_txt.Text = ServPort.ToString();
-                port_txt.ReadOnly = true;
-                start_server_man.Enabled = false;
-            }
-            else
-            {
-                status_server_txt.Text = "Не запущен";
-                start_server_man.Enabled = false;
-            }
-        }
-
-        private async void _Timer_Tick(object sender, EventArgs e)
-        {
-            await Task.Run(() => { SaveJson(ActualData); setlog($"Прогресс сохранен. Время сейва: {DateTime.Now}\r\n"); });
         }
 
         private void AdminForm_Load(object sender, EventArgs e)
@@ -302,6 +280,10 @@ namespace RtrsMapService_User
         }
         #endregion
         #region MAINTAINCE
+        private async void _Timer_Tick(object sender, EventArgs e)
+        {
+            await Task.Run(() => { SaveJson(ActualData); setlog($"Прогресс сохранен. Время сейва: {DateTime.Now}\r\n"); });
+        }
         private void BlockUI(bool flag)
         {
             var txt = GetAll(this, typeof(TextBox)).ToList();
@@ -442,6 +424,8 @@ namespace RtrsMapService_User
         }
         private void base_dgrv_CellMouseDoubleClick(object sender, DataGridViewCellMouseEventArgs e)
         {
+            if (e.RowIndex < 0)
+                return;
             ClearPlexInfo();
             var id = (int)base_dgrv[e.ColumnIndex, e.RowIndex].Value;
             if (id == 0) return;
@@ -560,11 +544,11 @@ namespace RtrsMapService_User
             }
             else if (sec_mult_gen_check.Checked == true & first_mult_gen_check.Checked == false)
             {
-                Generator(MultiSelect.first);
+                Generator(MultiSelect.second);
             }
             else if (sec_mult_gen_check.Checked == false & first_mult_gen_check.Checked == true)
             {
-                Generator(MultiSelect.second);
+                Generator(MultiSelect.first);
             }
             else
             {
@@ -582,47 +566,75 @@ namespace RtrsMapService_User
                 case MultiSelect.both:
                     progressBar1.Maximum = ActualData.li.Count * 2;
                     setlog("Генерация для двух мультов" + Environment.NewLine);
-                    Task ts = new Task(() =>
-                    {
-                        fili1 = GetCSV(ActualData, MultiSelect.first);
-                        setlog("Запуск для первого мульта" + Environment.NewLine);
-                        MapBuilder(ActualData, fili1, StaticInfo.MultiSelect.first);
-                    });
-                    Task ts1 = new Task(() =>
-                    {
-                        fili2 = GetCSV(ActualData, MultiSelect.second);
-                        setlog("Запуск для второго мульта" + Environment.NewLine);
-                        MapBuilder(ActualData, fili2, StaticInfo.MultiSelect.second);
-                    });
-                    await Task.WhenAll(ts, ts1); // not tested;
+                    //Task ts = new Task(() =>
+                    //{
+                    //   fili1 = GetCSV(ActualData, MultiSelect.first);
+                    //    setlog("Запуск для первого мульта" + Environment.NewLine);
+                    //    MapBuilder(ActualData, fili1, StaticInfo.MultiSelect.first);
+                    //});
+                    //Task ts1 = new Task(() =>
+                    // {
+                    //   fili2 = GetCSV(ActualData, MultiSelect.second);
+                    //    setlog("Запуск для второго мульта" + Environment.NewLine);
+                    //    MapBuilder(ActualData, fili2, StaticInfo.MultiSelect.second);
+                    //});
+                    //await Task.WhenAll(ts, ts1); // not tested;
                     //ts.Start();
                     //ts1.Start();
+                    await Task.WhenAll(testrunner(MultiSelect.first), testrunner(MultiSelect.second));
                     break;
                 case MultiSelect.first:
-                    fili1 = GetCSV(ActualData, MultiSelect.first);
+
+
+
+
+                    //fili1 = GetCSV(ActualData, MultiSelect.first);
                     progressBar1.Maximum = ActualData.li.Count;
-                    Task ts2 = new Task(() =>
-                    {
-                        setlog("Запуск для первого мульта" + Environment.NewLine);
-                        MapBuilder(ActualData, fili1, StaticInfo.MultiSelect.first);
-                    });
-                    await Task.WhenAll(ts2);
+                    //Task ts2 = new Task(() =>
+                    // {
+                    //    setlog("Запуск для первого мульта" + Environment.NewLine);
+                    //    MapBuilder(ActualData, fili1, StaticInfo.MultiSelect.first);
+                    //});
+                    //await Task.WhenAll(ts2);
                     //ts2.Start();
+                    await Task.WhenAll(testrunner(mu));
                     break;
                 case MultiSelect.second:
-                    fili2 = GetCSV(ActualData, MultiSelect.second);
+                    //fili2 = GetCSV(ActualData, MultiSelect.second);
                     progressBar1.Maximum = ActualData.li.Count;
-                    Task ts3 = new Task(() =>
-                    {
-                        setlog("Запуск для второго мульта" + Environment.NewLine);
-                        MapBuilder(ActualData, fili2, StaticInfo.MultiSelect.second);
-                    });
-                    await Task.WhenAll(ts3);
+                    //Task ts3 = new Task(() =>
+                    //{
+                    //    setlog("Запуск для второго мульта" + Environment.NewLine);
+                    //    MapBuilder(ActualData, fili2, StaticInfo.MultiSelect.second);
+                    //});
+                    //await Task.WhenAll(ts3);
                     //ts3.Start();
+                    await Task.WhenAll(testrunner(mu));
                     break;
             }
             BlockUI(true);
             GC.Collect(1, GCCollectionMode.Forced);
+        }
+        async Task<bool> testrunner(MultiSelect mu)
+        {
+            var b = await Task.Run(() => test(mu));
+            return b;
+        }
+        bool test(MultiSelect mu)
+        {
+            List<string> fili = new List<string>();
+            fili = GetCSV(ActualData, mu);
+            switch (mu)
+            {
+                case MultiSelect.first:
+                    setlog("Запуск для первого мульта" + Environment.NewLine);
+                    break;
+                case MultiSelect.second:
+                    setlog("Запуск для второго мульта" + Environment.NewLine);
+                    break;
+            }
+            MapBuilder(ActualData, fili, mu);
+            return true;
         }
         public void MapBuilder(Data dta, List<string> FILIAL, MultiSelect blue)
         {
@@ -655,7 +667,7 @@ namespace RtrsMapService_User
                 scht++;
             }
             string ending_fin = $"var baseMaps = {{{helps}}};\n\tvar overlayMaps ={{\"Фон\": c1,\"Карта гугл(спутник)\": c5,\"Карта гугл(гибрид)\": c4, \"Карта гугл(улицы)\": c2,\"Карта гугл(земля)\": c3,\"" +
-                "Карта яндекс(спутник)\": y1, \"Карта яндекс(улицы)\": y2, \"Карта яндекс(гибрид)\": y3, \"Карта яндекс(вектор)\": y4 }};\n\tL.control.layers(overlayMaps, baseMaps).addTo(mapQ3);\n\t";
+                "Карта яндекс(спутник)\": y1, \"Карта яндекс(улицы)\": y2, \"Карта яндекс(гибрид)\": y3, \"Карта яндекс(вектор)\": y4 };\n\tL.control.layers(overlayMaps, baseMaps).addTo(mapQ3);\n\t";
             setlog("Запуск процесса распределения" + Environment.NewLine);
             foreach (var item in dta.li)
             {
@@ -689,12 +701,12 @@ namespace RtrsMapService_User
                         }
                         break;
                 }
-
                 if (!string.IsNullOrEmpty(item.filial)) //нету id трансмит то зачем добавлять?
                 {
                     var o = FILIAL.IndexOf(item.filial);
                     endings[o] = endings[o].Replace("])", item.PrintVar() + ",])");
                 }
+
                 input = input.Replace("addTo(map)", "addTo(mapQ3)");
                 var qq = nodes.OuterHtml;
                 if (input != string.Empty)
@@ -728,12 +740,13 @@ namespace RtrsMapService_User
                     srrww.Close();
                     setlog("Сгенерированный файл сохранен" + Environment.NewLine);
                     setlog("Путь к файлу: " + htmlplex2path + Environment.NewLine);
-                    System.Diagnostics.Process.Start(htmlplex2path);
+                    System.Diagnostics.Process.Start($"localhost:{ServPort}/resources/{Path.GetFileName(htmlplex2path)}");
                     srrww.Dispose();
                     break;
             }
             //BlockUI(true);
         }
+
         public List<string> GetCSV(Data liout, MultiSelect mu)
         {
             List<string> FILIAL = new List<string>();
@@ -756,8 +769,8 @@ namespace RtrsMapService_User
                 else if (mu == MultiSelect.second)
                     b = liout.li.IndexOf(liout.li.Where(y => y.id_trans2.ToString() == qqww[0]).FirstOrDefault());
 
-                //if (b >= 0)
-                //liout.li[b].filial = qqww[1];
+                if (b >= 0)
+                    liout.li[b].filial = qqww[1];
                 else
                 {
                     if (mu == MultiSelect.first)
@@ -771,13 +784,33 @@ namespace RtrsMapService_User
             return FILIAL;
         }
         #endregion
-
+        #region SERVERTHING
         int ServPort = 0;
         SimpleHTTPServer myServer;
         private void start_server_man_Click(object sender, EventArgs e)
         {
             myServer = new SimpleHTTPServer(LoadItem.ServerPath, ServPort);
+            Task.Delay(100);
+            StaticInfo.DoGetServerState();
 
+        }
+        private void AdminForm_Ev_ResponseServerState(SimpleHTTPServer state)
+        {
+            if (state.State)
+            {
+                status_server_txt.Text = "Запущен";
+                ServPort = state.Port;
+                port_txt.TextChanged -= port_txt_TextChanged;
+                port_txt.Text = ServPort.ToString();
+                port_txt.TextChanged += port_txt_TextChanged;
+                port_txt.ReadOnly = true;
+                start_server_man.Enabled = false;
+            }
+            else
+            {
+                status_server_txt.Text = "Не запущен";
+                start_server_man.Enabled = false;
+            }
         }
 
         private void port_txt_TextChanged(object sender, EventArgs e)
@@ -794,5 +827,6 @@ namespace RtrsMapService_User
                 start_server_man.Enabled = false;
             }
         }
+        #endregion
     }
 }
