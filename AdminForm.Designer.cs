@@ -31,7 +31,6 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AdminForm));
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.button1 = new System.Windows.Forms.Button();
             this.multi_check = new System.Windows.Forms.CheckBox();
             this.last_multi_download = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
@@ -86,6 +85,11 @@
             this.tower_lon_txt = new System.Windows.Forms.TextBox();
             this.label12 = new System.Windows.Forms.Label();
             this.tower_lat_txt = new System.Windows.Forms.TextBox();
+            this.start_server_man = new System.Windows.Forms.Button();
+            this.status_server_txt = new System.Windows.Forms.TextBox();
+            this.label5 = new System.Windows.Forms.Label();
+            this.port_txt = new System.Windows.Forms.TextBox();
+            this.label18 = new System.Windows.Forms.Label();
             this.groupBox3.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -106,7 +110,6 @@
             // 
             // groupBox3
             // 
-            this.groupBox3.Controls.Add(this.button1);
             this.groupBox3.Controls.Add(this.multi_check);
             this.groupBox3.Controls.Add(this.last_multi_download);
             this.groupBox3.Controls.Add(this.label3);
@@ -117,16 +120,6 @@
             this.groupBox3.TabIndex = 15;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "База мультиплексов";
-            // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(123, 40);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 6;
-            this.button1.Text = "button1";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // multi_check
             // 
@@ -191,9 +184,15 @@
             this.log_box.TabIndex = 17;
             this.log_box.TabStop = false;
             this.log_box.Text = "";
+            this.log_box.ZoomFactor = 0.8F;
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.label18);
+            this.groupBox2.Controls.Add(this.port_txt);
+            this.groupBox2.Controls.Add(this.label5);
+            this.groupBox2.Controls.Add(this.status_server_txt);
+            this.groupBox2.Controls.Add(this.start_server_man);
             this.groupBox2.Controls.Add(this.label4);
             this.groupBox2.Controls.Add(this.sec_mult_gen_check);
             this.groupBox2.Controls.Add(this.first_mult_gen_check);
@@ -721,6 +720,51 @@
             this.tower_lat_txt.TabIndex = 17;
             this.tower_lat_txt.TabStop = false;
             // 
+            // start_server_man
+            // 
+            this.start_server_man.Location = new System.Drawing.Point(264, 82);
+            this.start_server_man.Name = "start_server_man";
+            this.start_server_man.Size = new System.Drawing.Size(146, 23);
+            this.start_server_man.TabIndex = 7;
+            this.start_server_man.Text = "Форсированный запуск";
+            this.start_server_man.UseVisualStyleBackColor = true;
+            this.start_server_man.Click += new System.EventHandler(this.start_server_man_Click);
+            // 
+            // status_server_txt
+            // 
+            this.status_server_txt.Location = new System.Drawing.Point(266, 32);
+            this.status_server_txt.Name = "status_server_txt";
+            this.status_server_txt.ReadOnly = true;
+            this.status_server_txt.Size = new System.Drawing.Size(145, 20);
+            this.status_server_txt.TabIndex = 8;
+            // 
+            // label5
+            // 
+            this.label5.Location = new System.Drawing.Point(262, 16);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(149, 13);
+            this.label5.TabIndex = 9;
+            this.label5.Text = "Статус локального сервера";
+            this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // port_txt
+            // 
+            this.port_txt.Location = new System.Drawing.Point(337, 58);
+            this.port_txt.Name = "port_txt";
+            this.port_txt.Size = new System.Drawing.Size(73, 20);
+            this.port_txt.TabIndex = 10;
+            this.port_txt.Text = "1515";
+            this.port_txt.TextChanged += new System.EventHandler(this.port_txt_TextChanged);
+            // 
+            // label18
+            // 
+            this.label18.Location = new System.Drawing.Point(303, 59);
+            this.label18.Name = "label18";
+            this.label18.Size = new System.Drawing.Size(33, 17);
+            this.label18.TabIndex = 11;
+            this.label18.Text = "Порт";
+            this.label18.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
             // AdminForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -782,7 +826,6 @@
         private System.Windows.Forms.DataGridView base_dgrv;
         private System.Windows.Forms.GroupBox groupBox4;
         private System.Windows.Forms.PictureBox img_trans_item_pb;
-        private System.Windows.Forms.Button button1;
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.TabPage tabPage2;
@@ -815,5 +858,10 @@
         private System.Windows.Forms.Label label17;
         private System.Windows.Forms.Button search_b_btn;
         private System.Windows.Forms.Button search_f_btn;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.TextBox status_server_txt;
+        private System.Windows.Forms.Button start_server_man;
+        private System.Windows.Forms.Label label18;
+        private System.Windows.Forms.TextBox port_txt;
     }
 }

@@ -3,7 +3,6 @@ using CefSharp.WinForms;
 using RtrsMapService_User.Class;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -11,12 +10,11 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Security.Authentication.ExtendedProtection;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static RtrsMapService_User.StaticInfo;
 
 namespace RtrsMapService_User
 {
@@ -245,6 +243,36 @@ namespace RtrsMapService_User
             //tr.Close();
             WI_HI_cssSetter(ActSize);
             TextWriter tw = new StreamWriter(mult1path, false);
+            switch (LastLayerName)
+            {
+                case "Фон":
+                    fileContents = fileContents.Replace("y3.addTo(map);", "c1.addTo(map);");
+                    break;
+                case "Карта гугл(спутник)":
+                    fileContents = fileContents.Replace("y3.addTo(map);", "c5.addTo(map);");
+                    break;
+                case "Карта гугл(гибрид)":
+                    fileContents = fileContents.Replace("y3.addTo(map);", "c4.addTo(map);");
+                    break;
+                case "Карта гугл(улицы)":
+                    fileContents = fileContents.Replace("y3.addTo(map);", "c2.addTo(map);");
+                    break;
+                case "Карта гугл(земля)":
+                    fileContents = fileContents.Replace("y3.addTo(map);", "c3.addTo(map);");
+                    break;
+                case "Карта яндекс(спутник)":
+                    fileContents = fileContents.Replace("y3.addTo(map);", "y1.addTo(map);");
+                    break;
+                case "Карта яндекс(улицы)":
+                    fileContents = fileContents.Replace("y3.addTo(map);", "y2.addTo(map);");
+                    break;
+                //case "Карта яндекс(гибрид)":
+                //    fileContents = fileContents.Replace("y3.addTo(map);", "");
+                //    break;
+                case "Карта яндекс(вектор)":
+                    fileContents = fileContents.Replace("y3.addTo(map);", "y4.addTo(map);");
+                    break;
+            }
             fileContents = fileContents.Replace("SWLAT", sw_lat_txt.Text);
             fileContents = fileContents.Replace("SWLON", sw_lon_txt.Text);
             fileContents = fileContents.Replace("NELAT", ne_lat_txt.Text);
@@ -671,15 +699,6 @@ namespace RtrsMapService_User
             txt.ForEach(t => t.Invoke(new Action(() => t.Enabled = flag)));
             chck.ForEach(t => t.Invoke(new Action(() => t.Enabled = flag)));
             btn.ForEach(t => t.Invoke(new Action(() => t.Enabled = flag)));
-        }
-
-        public IEnumerable<Control> GetAll(Control control, Type type)
-        {
-            var controls = control.Controls.Cast<Control>();
-
-            return controls.SelectMany(ctrl => GetAll(ctrl, type))
-                                      .Concat(controls)
-                                      .Where(c => c.GetType() == type);
         }
 
         private void clear_img_btn_Click(object sender, EventArgs e)

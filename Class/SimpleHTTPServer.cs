@@ -10,7 +10,7 @@ using System.Diagnostics;
 
 namespace RtrsMapService_User.Class
 {
-    class SimpleHTTPServer
+    public class SimpleHTTPServer
     {
         private readonly string[] _indexFiles = {
         "index.html",
@@ -97,6 +97,11 @@ namespace RtrsMapService_User.Class
             get { return _port; }
             private set { }
         }
+        public bool State { get { return _listener.IsListening; } }
+        public SimpleHTTPServer GetState
+        {
+            get { return this; }
+        }
 
         /// <summary>
         /// Construct server with given port.
@@ -105,7 +110,13 @@ namespace RtrsMapService_User.Class
         /// <param name="port">Port of the server.</param>
         public SimpleHTTPServer(string path, int port)
         {
+            StaticInfo.Ev_GetServerState += StaticInfo_Ev_GetServerState;
             this.Initialize(path, port);
+        }
+
+        private void StaticInfo_Ev_GetServerState()
+        {
+            StaticInfo.DoResponseServerState(GetState);
         }
 
         /// <summary>
@@ -145,7 +156,7 @@ namespace RtrsMapService_User.Class
                 }
                 catch (Exception)
                 {
-                    if(clone_port - _port > 20)
+                    if (clone_port - _port > 20)
                     {
                         var t = System.Windows.Forms.MessageBox.Show($"Попытка запуска сервера на портах {_port}:{clone_port} провалена.\nПовторите запуск в режиме администратора", "Ошибка", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Error);
                         if (t == System.Windows.Forms.DialogResult.OK)

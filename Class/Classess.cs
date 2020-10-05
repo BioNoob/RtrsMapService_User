@@ -1,5 +1,6 @@
 ﻿using HtmlAgilityPack;
 using Newtonsoft.Json;
+using RtrsMapService_User.Class;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -9,8 +10,8 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace RtrsMapService_User
 {
@@ -44,11 +45,35 @@ namespace RtrsMapService_User
         {
             Ev_TransferDataToMap?.Invoke(mo, img, id);
         }
+
+
+        public delegate void GetServerState();
+        public static event GetServerState Ev_GetServerState;
+        public static void DoGetServerState()
+        {
+            Ev_GetServerState?.Invoke();
+        }
+        public delegate void ResponseServerState(SimpleHTTPServer state);
+        public static event ResponseServerState Ev_ResponseServerState;
+        public static void DoResponseServerState(SimpleHTTPServer state)
+        {
+            Ev_ResponseServerState?.Invoke(state);
+        }
+
+
         public enum MultiSelect
         {
             both = 0,
             first = 1,
             second = 2
+        }
+        public static IEnumerable<Control> GetAll(Control control, Type type)
+        {
+            var controls = control.Controls.Cast<Control>();
+
+            return controls.SelectMany(ctrl => GetAll(ctrl, type))
+                                      .Concat(controls)
+                                      .Where(c => c.GetType() == type);
         }
     }
 
@@ -256,6 +281,7 @@ namespace RtrsMapService_User
             return li;
         }
         public static string ExPath = System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+        public static string ServerPath = ExPath + "\\server";
         public static string ImgMapPath = ExPath + "\\server\\mapimg\\";
         public void GetInfoLoadItem(List<ImgItemInfo> list)
         {
@@ -325,7 +351,7 @@ namespace RtrsMapService_User
                     {
                         var response = wb.DownloadString(getimg + id_trans1);
                         map_trans1 = JsonConvert.DeserializeObject<mapobj>(response);
-                        ImgChecker(list, Path.GetFileName(map_trans1.map));
+                        ImgChecker(list, map_trans1.map);
                         map_trans1.web_tvk = tvk;
                     }
                 }
@@ -335,7 +361,7 @@ namespace RtrsMapService_User
                     {
                         var response = wb.DownloadString(getimg + id_trans2);
                         map_trans2 = JsonConvert.DeserializeObject<mapobj>(response);
-                        ImgChecker(list, Path.GetFileName(map_trans2.map));
+                        ImgChecker(list,map_trans2.map);
                         map_trans2.web_tvk = tvk;
                     }
                 }
@@ -347,20 +373,28 @@ namespace RtrsMapService_User
         }
         private void ImgChecker(List<ImgItemInfo> list, string path)
         {
-            string withIMG = ImgMapPath + path;
+            string withIMG = ImgMapPath + Path.GetFileName(path);
             WebClient wb = new WebClient();
+            
             if (!File.Exists(withIMG))
             {
-                wb.DownloadFile(map_trans1.map, withIMG);
+                wb.DownloadFile(path, withIMG);
             }
             else
             {
                 DateTime dt = File.GetLastWriteTime(withIMG);
-                if (list.Where(l => l.name == path).Single().dt > dt)
+                if (list.Where(l => l.name == Path.GetFileName(path)).Single().dt > dt)
                 {
-                    wb.DownloadFile(map_trans1.map, withIMG);
+                    wb.DownloadFile(path, withIMG);
                 }
             }
+        }
+        public void ClearMapObj()
+        {
+            id_trans1 = 0;
+            id_trans2 = 0;
+            map_trans1 = null;
+            map_trans2 = null;
         }
         public string PrintVar()
         {

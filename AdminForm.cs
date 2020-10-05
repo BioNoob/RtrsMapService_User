@@ -1,8 +1,8 @@
 ﻿using HtmlAgilityPack;
 using Newtonsoft.Json;
+using RtrsMapService_User.Class;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Globalization;
@@ -10,7 +10,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -20,7 +19,6 @@ namespace RtrsMapService_User
 {
     public partial class AdminForm : Form
     {
-        //public static string ExPath = System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
         public static string JsonPath = LoadItem.ExPath + "\\rtrsjson.json";
         static string mult1path = LoadItem.ExPath + "\\csv_table\\mult1.csv";
         static string mult2path = LoadItem.ExPath + "\\csv_table\\mult2.csv";
@@ -28,24 +26,47 @@ namespace RtrsMapService_User
         static string htmlplex2path = LoadItem.ExPath + "\\server\\resources\\2ой_мульт.html";
         public Data ActualData { get; set; }
         public List<ImgItemInfo> ServerImgList { get; set; }
-
+        Timer _Timer { get; set; }
         public DateTime starttime;
-        BindingSource bss;
         public AdminForm()
         {
             InitializeComponent();
             this.MinimumSize = this.Size;
             this.MaximumSize = DefaultMaximumSize;
-            bss = new BindingSource();
             ActualData = new Data();
-            bss.DataSource = ActualData.li;
             base_dgrv.AutoGenerateColumns = false;
-            base_dgrv.DataSource = bss;
+            base_dgrv.DataSource = ActualData.li;
             base_dgrv.Columns[0].DataPropertyName = "id";
             base_dgrv.Columns[1].DataPropertyName = "id_trans1";
             base_dgrv.Columns[2].DataPropertyName = "id_trans2";
+            Ev_ResponseServerState += AdminForm_Ev_ResponseServerState; ;
             this.Load += AdminForm_Load;
             search_rez = new List<Point>();
+            _Timer = new Timer() { Interval = 100000 };
+            _Timer.Tick += _Timer_Tick;
+            StaticInfo.DoGetServerState();
+        }
+
+        private void AdminForm_Ev_ResponseServerState(SimpleHTTPServer state)
+        {
+            if (state.State)
+            {
+                status_server_txt.Text = "Запущен";
+                ServPort = state.Port;
+                port_txt.Text = ServPort.ToString();
+                port_txt.ReadOnly = true;
+                start_server_man.Enabled = false;
+            }
+            else
+            {
+                status_server_txt.Text = "Не запущен";
+                start_server_man.Enabled = false;
+            }
+        }
+
+        private async void _Timer_Tick(object sender, EventArgs e)
+        {
+            await Task.Run(() => { SaveJson(ActualData); setlog($"Прогресс сохранен. Время сейва: {DateTime.Now}\r\n"); });
         }
 
         private void AdminForm_Load(object sender, EventArgs e)
@@ -59,13 +80,10 @@ namespace RtrsMapService_User
         /// <param name="e"></param>
         private async void get_act_date_Click(object sender, EventArgs e)
         {
+            setlog("Проверка времени последнего обновления базы на сервере RTRS начата..." + Environment.NewLine);
             var t = await Downloader_tower();
             current_time_twr_txt.Text = t.Time.ToString();
             setlog("Время последнего обновления баз на сервере RTRS: " + ActualData.Time.ToString() + Environment.NewLine);
-        }
-        private void button1_Click(object sender, EventArgs e)
-        {
-            SaveJson(ActualData);
         }
 
         #region BASELOADER
@@ -95,7 +113,19 @@ namespace RtrsMapService_User
         }
         private async void dwnld_base_btn_Click(object sender, EventArgs e)
         {
+            BlockUI(false);
             setlog("Получение базы, ожидайте..." + Environment.NewLine);
+            if (ActualData != new Data())
+                if (MessageBox.Show($"Текущая база будет стерта! Продолжить?", "Внимание", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
+                {
+                    return;
+                }
+                else
+                {
+                    ActualData = new Data();
+                    RefreshDataGridView();
+                    //BeginInvoke(new Action(() => { bss.DataSource = ActualData.li; bss.ResetBindings(false); base_dgrv.Refresh(); }));
+                }
             ActualData = await Downloader_tower();
             if (ActualData == null)
             {
@@ -106,12 +136,15 @@ namespace RtrsMapService_User
             {
                 btn_download_multi.Enabled = true;
             }
-            bss.DataSource = ActualData.li;
-            bss.ResetBindings(false);
+            //bss.DataSource = ActualData.li;
+            //bss.ResetBindings(false);
+            RefreshDataGridView();
             setlog("Локальная база вышек скачена и обновлена. Время обновления: " + ActualData.Time.ToString() + Environment.NewLine);
             dt_time_actual.Text = ActualData.Time.ToString();
+            tower_check.Checked = true;
             base_dgrv.Refresh();
             SaveJson(ActualData);
+            BlockUI(true);
         }
 
         #endregion
@@ -175,10 +208,51 @@ namespace RtrsMapService_User
         }
         private async void btn_download_multi_Click(object sender, EventArgs e)
         {
+            var qq = Path.GetPathRoot(LoadItem.ExPath);
+            var dd = DriveInfo.GetDrives().ToList();
+            var a = dd.Where(w => w.Name == qq).First();
+            //var a = dd.Where(nm => qq.Contains(nm.Name));
+            if (MessageBox.Show($"Текущая информация о мультиплексах будет стерта! Продолжить?", "Внимание", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
+            {
+                return;
+            }
+            else
+            {
+                ActualData.li.ForEach(Q => Q.ClearMapObj());
+                RefreshDataGridView();
+                //BeginInvoke(new Action(() => { bss.DataSource = ActualData.li; bss.ResetBindings(false); base_dgrv.Refresh(); }));
+            }
+
+            //return;
+
+            if (MessageBox.Show($"Для загрузки базы потребуется около 500 МБ, доступно {a.AvailableFreeSpace / (1024 * 1024)} MB\nПродолжить загрузку?", "Внимание", MessageBoxButtons.YesNo) != DialogResult.Yes)
+            {
+                return;
+            }
+
+            BlockUI(false);
+            _Timer.Start();
             progressBar1.Value = 0;
             progressBar1.Maximum = ActualData.li.Count + 1;
             setlog("Загрузка информации начата. Время начала: " + DateTime.Now.ToString() + Environment.NewLine);
-            ServerImgList =  await ForImgCheckLoader();
+
+
+            #region DEBUG
+            if (!File.Exists(LoadItem.ExPath + "\\some.json"))
+            {
+                ServerImgList = await ForImgCheckLoader();
+                TextWriter tr = new StreamWriter(LoadItem.ExPath + "\\some.json", false);
+                tr.Write(JsonConvert.SerializeObject(ServerImgList));
+                tr.Flush();
+                tr.Close();
+            }
+            else
+            {
+                TextReader tr = new StreamReader(LoadItem.ExPath + "\\some.json", false);
+                ServerImgList = JsonConvert.DeserializeObject<List<ImgItemInfo>>(tr.ReadToEnd());
+            }
+            #endregion
+
             setProgress();
             setlog($"Загружен список изображений с сервера. Количесвто изображений {ServerImgList.Count}" + Environment.NewLine);
             if (!Directory.Exists(LoadItem.ImgMapPath))
@@ -189,46 +263,54 @@ namespace RtrsMapService_User
             var cnt = ActualData.li.Count();
             var t_s = ActualData.li.Where(q => q.id <= cnt / 2).ToList();
             var t_e = ActualData.li.Where(q => q.id > cnt / 2).ToList();
-            //2 потока на загрузку
-            Task[] t = new Task[2];
-            t[0] = (GetLoadItemInfo_T(t_s));
-            t[1] = (GetLoadItemInfo_T(t_e));
-            foreach (var item in t)
-            {
-                item.Start();
-            }
-            Task.WaitAll(t);
-            setlog($"Загрузка инофрмации о мультиплексах завершена. Время завершения: {DateTime.Now}"+ Environment.NewLine);
+            await Task.WhenAll(LoadWorkerRunner(t_s), LoadWorkerRunner(t_e));
+
+            setlog($"Загрузка инофрмации о мультиплексах завершена. Время завершения: {DateTime.Now}" + Environment.NewLine);
+            start_generator_btn.Enabled = true;
             SaveJson(ActualData);
+            _Timer.Stop();
+            BlockUI(true);
         }
-        private Task<bool> GetLoadItemInfo_T(List<LoadItem> li)
+        async Task<bool> LoadWorkerRunner(List<LoadItem> li)
         {
-            Task<bool> t = new Task<bool>(() =>
-            {
-                foreach (var item in li)
-                {
-                    try
-                    {
-                        Task.Delay(10);
-                        item.GetInfoLoadItem(ServerImgList);
-                        base_dgrv.Invoke(new Action(() => { bss.DataSource = ActualData.li; bss.ResetBindings(false); base_dgrv.Refresh(); }));
-                        if (item.id_trans1 != 0)
-                            setlog("Tower №" + item.id + "\t" + "Recived data 1 multi" + "\t" + (DateTime.Now - starttime).ToString() + Environment.NewLine);
-                        if (item.id_trans2 != 0)
-                            setlog("Tower №" + item.id + "\t" + "Recived data 2 multi" + "\t" + (DateTime.Now - starttime).ToString() + Environment.NewLine);
-                    }
-                    catch (Exception ex)
-                    {
-                        setlog("Ошибка " + ex.Message + "\t" + item.id + Environment.NewLine);
-                    }
-                    setProgress();
-                }
-                return true;
-            });
+
+            bool t = await Task.Run(() => LoadWorker(li));
             return t;
+        }
+        bool LoadWorker(List<LoadItem> li)
+        {
+            foreach (var item in li)
+            {
+                try
+                {
+                    Task.Delay(10);
+                    item.GetInfoLoadItem(ServerImgList);
+                    if (item.id_trans1 != 0)
+                        setlog("Tower №" + item.id + "\t" + "Recived data 1 multi" + "\t" + (DateTime.Now - starttime).ToString() + Environment.NewLine);
+                    if (item.id_trans2 != 0)
+                        setlog("Tower №" + item.id + "\t" + "Recived data 2 multi" + "\t" + (DateTime.Now - starttime).ToString() + Environment.NewLine);
+                    RefreshDataGridView();
+                    //BeginInvoke(new Action(() => { bss.DataSource = ActualData.li; bss.ResetBindings(false); base_dgrv.Refresh(); }));
+                }
+                catch (Exception ex)
+                {
+                    setlog("Ошибка " + ex.Message + "\t" + item.id + Environment.NewLine);
+                }
+                setProgress();
+            }
+            return true;
         }
         #endregion
         #region MAINTAINCE
+        private void BlockUI(bool flag)
+        {
+            var txt = GetAll(this, typeof(TextBox)).ToList();
+            var chck = GetAll(this, typeof(CheckBox)).ToList();
+            var btn = GetAll(this, typeof(Button)).ToList();
+            txt.ForEach(t => t.Invoke(new Action(() => t.Enabled = flag)));
+            chck.ForEach(t => t.Invoke(new Action(() => t.Enabled = flag)));
+            btn.ForEach(t => t.Invoke(new Action(() => t.Enabled = flag)));
+        }
         private void LoadData()
         {
             if (File.Exists(JsonPath))
@@ -237,10 +319,17 @@ namespace RtrsMapService_User
                 ActualData = JsonConvert.DeserializeObject<Data>(tr.ReadToEnd());
                 tower_check.Checked = true;
                 if (ActualData.li.Where(q => q.id_trans1 != 0).Count() > 0)
+                {
                     multi_check.Checked = true;
+                    start_generator_btn.Enabled = true;
+                }
                 else
+                {
                     multi_check.Checked = false;
-                bss.DataSource = ActualData.li; bss.ResetBindings(false); base_dgrv.Refresh();
+                    start_generator_btn.Enabled = false;
+                }
+                RefreshDataGridView();
+                //bss.DataSource = ActualData.li; bss.ResetBindings(false); base_dgrv.Refresh();
                 setlog($"Загружена база. Время обновления: {ActualData.Time.ToString()}\n");
                 dt_time_actual.Text = ActualData.Time.ToString();
                 btn_download_multi.Enabled = true;
@@ -251,6 +340,7 @@ namespace RtrsMapService_User
                 multi_check.Checked = false;
                 setlog($"База данных не найдена на локальном компьютере\n");
                 btn_download_multi.Enabled = false;
+                start_generator_btn.Enabled = false;
             }
         }
         private void SaveJson(Data li)
@@ -265,11 +355,31 @@ namespace RtrsMapService_User
         }
         public void setlog(string txt)
         {
-            log_box.Invoke(new Action(() => { log_box.AppendText(txt); log_box.ScrollToCaret(); }));
+            if (log_box.InvokeRequired)
+                BeginInvoke(new Action(() => { log_box.AppendText(txt); log_box.ScrollToCaret(); }));
+            else
+            {
+                log_box.AppendText(txt); log_box.ScrollToCaret();
+            }
+
         }
         public void setProgress()
         {
-            progressBar1.Invoke(new Action(() => { progressBar1.Value += 1; }));
+            if (progressBar1.InvokeRequired)
+                progressBar1.Invoke(new Action(() => { progressBar1.Value += 1; }));
+            else
+                progressBar1.Value += 1;
+        }
+        private void RefreshDataGridView()
+        {
+            BeginInvoke(new Action(() =>
+            {
+                base_dgrv.DataSource = typeof(List<>);
+                base_dgrv.DataSource = ActualData.li;
+                //base_dgrv.AutoResizeColumns();
+                base_dgrv.Refresh();
+            }));
+
         }
         #endregion
         #region PLEX_INFO_LOC_DGRW
@@ -304,7 +414,7 @@ namespace RtrsMapService_User
             plex_sw_lon_txt.Text = string.Empty;
             file_name_txt.Text = string.Empty;
             tvk_txt.Text = string.Empty;
-            GC.Collect();
+            GC.Collect(1, GCCollectionMode.Forced);
         }
         void ShowPlexInfo(LoadItem t, int plex_num)
         {
@@ -402,6 +512,10 @@ namespace RtrsMapService_User
         }
         void searh_in_base(int dir)
         {
+            if (base_dgrv.Rows.Count < 1)
+            {
+                return;
+            }
             if (dir == 0)
                 curr_in_search++;
             else
@@ -438,31 +552,26 @@ namespace RtrsMapService_User
         #region MAPGEN
         private void start_generator_btn_Click(object sender, EventArgs e)
         {
+            BlockUI(false);
             setlog("Генерация html запущена" + Environment.NewLine);
             if (sec_mult_gen_check.Checked == true & first_mult_gen_check.Checked == true)
             {
                 Generator(MultiSelect.both);
-                //textBox2.Text = File.GetLastWriteTime(ExPath + "\\2ой_мульт.html").ToString();
-                //textBox1.Text = File.GetLastWriteTime(ExPath + "\\1ый_мульт.html").ToString();
             }
             else if (sec_mult_gen_check.Checked == true & first_mult_gen_check.Checked == false)
             {
                 Generator(MultiSelect.first);
-                //textBox1.Text = File.GetLastWriteTime(ExPath + "\\1ый_мульт.html").ToString();
-                //button1.Enabled = true;
             }
             else if (sec_mult_gen_check.Checked == false & first_mult_gen_check.Checked == true)
             {
                 Generator(MultiSelect.second);
-                //textBox2.Text = File.GetLastWriteTime(ExPath + "\\2ой_мульт.html").ToString();
-                //button2.Enabled = true;
             }
             else
             {
                 setlog("Не выбран тип мультплекса для генерации" + Environment.NewLine);
             }
         }
-        public void Generator(StaticInfo.MultiSelect mu)
+        public async void Generator(StaticInfo.MultiSelect mu)
         {
             progressBar1.Value = 0;
             setlog("Чтение таблиц декодировки" + Environment.NewLine);
@@ -485,8 +594,9 @@ namespace RtrsMapService_User
                         setlog("Запуск для второго мульта" + Environment.NewLine);
                         MapBuilder(ActualData, fili2, StaticInfo.MultiSelect.second);
                     });
-                    ts.Start();
-                    ts1.Start();
+                    await Task.WhenAll(ts, ts1); // not tested;
+                    //ts.Start();
+                    //ts1.Start();
                     break;
                 case MultiSelect.first:
                     fili1 = GetCSV(ActualData, MultiSelect.first);
@@ -496,7 +606,8 @@ namespace RtrsMapService_User
                         setlog("Запуск для первого мульта" + Environment.NewLine);
                         MapBuilder(ActualData, fili1, StaticInfo.MultiSelect.first);
                     });
-                    ts2.Start();
+                    await Task.WhenAll(ts2);
+                    //ts2.Start();
                     break;
                 case MultiSelect.second:
                     fili2 = GetCSV(ActualData, MultiSelect.second);
@@ -506,10 +617,12 @@ namespace RtrsMapService_User
                         setlog("Запуск для второго мульта" + Environment.NewLine);
                         MapBuilder(ActualData, fili2, StaticInfo.MultiSelect.second);
                     });
-                    ts3.Start();
+                    await Task.WhenAll(ts3);
+                    //ts3.Start();
                     break;
             }
-            GC.Collect();
+            BlockUI(true);
+            GC.Collect(1, GCCollectionMode.Forced);
         }
         public void MapBuilder(Data dta, List<string> FILIAL, MultiSelect blue)
         {
@@ -541,7 +654,7 @@ namespace RtrsMapService_User
                 helps += $"\"{item}\": b{scht},";
                 scht++;
             }
-            string ending_fin = $"var baseMaps = {{{helps}}};\n\tvar overlayMaps ={{\"Фон\": c1,\"Карта гугл(спутник)\": c5,\"Карта гугл(гибрид)\": c4, \"Карта гугл(улицы)\": c2,\"Карта гугл(земля)\": c3,\""+
+            string ending_fin = $"var baseMaps = {{{helps}}};\n\tvar overlayMaps ={{\"Фон\": c1,\"Карта гугл(спутник)\": c5,\"Карта гугл(гибрид)\": c4, \"Карта гугл(улицы)\": c2,\"Карта гугл(земля)\": c3,\"" +
                 "Карта яндекс(спутник)\": y1, \"Карта яндекс(улицы)\": y2, \"Карта яндекс(гибрид)\": y3, \"Карта яндекс(вектор)\": y4 }};\n\tL.control.layers(overlayMaps, baseMaps).addTo(mapQ3);\n\t";
             setlog("Запуск процесса распределения" + Environment.NewLine);
             foreach (var item in dta.li)
@@ -591,7 +704,7 @@ namespace RtrsMapService_User
                 }
                 continue;
             }
-            setlog("Завершение" + Environment.NewLine);
+            setlog("Завершение..." + Environment.NewLine);
             var qq1 = nodes.OuterHtml;
             var tqwe = string.Join("", endings);
             var ta1 = "\n\t" + tqwe + ending_fin;
@@ -606,6 +719,7 @@ namespace RtrsMapService_User
                     srrww.Close();
                     setlog("Сгенерированный файл сохранен" + Environment.NewLine);
                     setlog("Путь к файлу: " + htmlplex1path + Environment.NewLine);
+                    System.Diagnostics.Process.Start(htmlplex1path);
                     srrww.Dispose();
                     break;
                 case MultiSelect.second:
@@ -614,9 +728,11 @@ namespace RtrsMapService_User
                     srrww.Close();
                     setlog("Сгенерированный файл сохранен" + Environment.NewLine);
                     setlog("Путь к файлу: " + htmlplex2path + Environment.NewLine);
+                    System.Diagnostics.Process.Start(htmlplex2path);
                     srrww.Dispose();
                     break;
             }
+            //BlockUI(true);
         }
         public List<string> GetCSV(Data liout, MultiSelect mu)
         {
@@ -655,5 +771,28 @@ namespace RtrsMapService_User
             return FILIAL;
         }
         #endregion
+
+        int ServPort = 0;
+        SimpleHTTPServer myServer;
+        private void start_server_man_Click(object sender, EventArgs e)
+        {
+            myServer = new SimpleHTTPServer(LoadItem.ServerPath, ServPort);
+
+        }
+
+        private void port_txt_TextChanged(object sender, EventArgs e)
+        {
+            if (Regex.IsMatch(port_txt.Text, @"^\d+$"))
+            {
+                port_txt.ForeColor = Color.Black;
+                start_server_man.Enabled = true;
+                ServPort = int.Parse(port_txt.Text);
+            }
+            else
+            {
+                port_txt.ForeColor = Color.Red;
+                start_server_man.Enabled = false;
+            }
+        }
     }
 }
