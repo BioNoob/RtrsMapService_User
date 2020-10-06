@@ -27,6 +27,16 @@ namespace RtrsMapService_User
         public Data ActualData { get; set; }
         public List<ImgItemInfo> ServerImgList { get; set; }
         Timer _Timer { get; set; }
+        private bool fl_isrun { get; set; }
+        private bool check_fl_isrun()
+        {
+            if (fl_isrun)
+            {
+                MessageBox.Show("Ожидайте выполнение задачи!");
+                return true;
+            }
+            return false;
+        }
         public DateTime starttime;
         public AdminForm()
         {
@@ -58,10 +68,15 @@ namespace RtrsMapService_User
         /// <param name="e"></param>
         private async void get_act_date_Click(object sender, EventArgs e)
         {
+            if (check_fl_isrun())
+                return;
+            else
+                fl_isrun = true;
             setlog("Проверка времени последнего обновления базы на сервере RTRS начата..." + Environment.NewLine);
             var t = await Downloader_tower();
             current_time_twr_txt.Text = t.Time.ToString();
             setlog("Время последнего обновления баз на сервере RTRS: " + ActualData.Time.ToString() + Environment.NewLine);
+            fl_isrun = false;
         }
 
         #region BASELOADER
@@ -91,7 +106,11 @@ namespace RtrsMapService_User
         }
         private async void dwnld_base_btn_Click(object sender, EventArgs e)
         {
-            BlockUI(false);
+            if (check_fl_isrun())
+                return;
+            else
+                fl_isrun = true;
+            //BlockUI(false);
             setlog("Получение базы, ожидайте..." + Environment.NewLine);
             if (ActualData != new Data())
                 if (MessageBox.Show($"Текущая база будет стерта! Продолжить?", "Внимание", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
@@ -122,7 +141,8 @@ namespace RtrsMapService_User
             tower_check.Checked = true;
             base_dgrv.Refresh();
             SaveJson(ActualData);
-            BlockUI(true);
+            fl_isrun = false;
+            //BlockUI(true);
         }
 
         #endregion
@@ -180,12 +200,16 @@ namespace RtrsMapService_User
             }
             finally
             {
-                GC.Collect();
+                GC.Collect(1,GCCollectionMode.Forced);
             }
 
         }
         private async void btn_download_multi_Click(object sender, EventArgs e)
         {
+            if (check_fl_isrun())
+                return;
+            else
+                fl_isrun = true;
             var qq = Path.GetPathRoot(LoadItem.ExPath);
             var dd = DriveInfo.GetDrives().ToList();
             var a = dd.Where(w => w.Name == qq).First();
@@ -208,7 +232,7 @@ namespace RtrsMapService_User
                 return;
             }
 
-            BlockUI(false);
+            //BlockUI(false);
             _Timer.Start();
             progressBar1.Value = 0;
             progressBar1.Maximum = ActualData.li.Count + 1;
@@ -247,7 +271,8 @@ namespace RtrsMapService_User
             start_generator_btn.Enabled = true;
             SaveJson(ActualData);
             _Timer.Stop();
-            BlockUI(true);
+            //BlockUI(true);
+            fl_isrun = false;
         }
         async Task<bool> LoadWorkerRunner(List<LoadItem> li)
         {
@@ -284,15 +309,15 @@ namespace RtrsMapService_User
         {
             await Task.Run(() => { SaveJson(ActualData); setlog($"Прогресс сохранен. Время сейва: {DateTime.Now}\r\n"); });
         }
-        private void BlockUI(bool flag)
-        {
-            var txt = GetAll(this, typeof(TextBox)).ToList();
-            var chck = GetAll(this, typeof(CheckBox)).ToList();
-            var btn = GetAll(this, typeof(Button)).ToList();
-            txt.ForEach(t => t.Invoke(new Action(() => t.Enabled = flag)));
-            chck.ForEach(t => t.Invoke(new Action(() => t.Enabled = flag)));
-            btn.ForEach(t => t.Invoke(new Action(() => t.Enabled = flag)));
-        }
+        //private void BlockUI(bool flag)
+        //{
+        //    var txt = GetAll(this, typeof(TextBox)).ToList();
+        //    var chck = GetAll(this, typeof(CheckBox)).ToList();
+        //    var btn = GetAll(this, typeof(Button)).ToList();
+        //    txt.ForEach(t => t.Invoke(new Action(() => t.Enabled = flag)));
+        //    chck.ForEach(t => t.Invoke(new Action(() => t.Enabled = flag)));
+        //    btn.ForEach(t => t.Invoke(new Action(() => t.Enabled = flag)));
+        //}
         private void LoadData()
         {
             if (File.Exists(JsonPath))
@@ -363,6 +388,16 @@ namespace RtrsMapService_User
             }));
 
         }
+        private void show_gen_btn_Click(object sender, EventArgs e)
+        {
+            var t = sender as Button;
+            if (t.Tag.ToString() == "2")
+            {
+                System.Diagnostics.Process.Start($"http://localhost:{ServPort}/resources/{Path.GetFileName(htmlplex2path)}");
+            }
+            else
+                System.Diagnostics.Process.Start($"http://localhost:{ServPort}/resources/{Path.GetFileName(htmlplex1path)}");
+        }
         #endregion
         #region PLEX_INFO_LOC_DGRW
         private LoadItem ActiveLoadItem;
@@ -410,7 +445,8 @@ namespace RtrsMapService_User
                     plex = t.map_trans2;
                 else
                     return;
-
+                if (plex == null)
+                    return;
                 string q = LoadItem.ImgMapPath + Path.GetFileName(plex.map);
                 if (File.Exists(q))
                     img_trans_item_pb.Image = Image.FromFile(q);
@@ -424,7 +460,7 @@ namespace RtrsMapService_User
         }
         private void base_dgrv_CellMouseDoubleClick(object sender, DataGridViewCellMouseEventArgs e)
         {
-            if (e.RowIndex < 0)
+            if (e.RowIndex < 0 | e.ColumnIndex < 0)
                 return;
             ClearPlexInfo();
             var id = (int)base_dgrv[e.ColumnIndex, e.RowIndex].Value;
@@ -433,17 +469,12 @@ namespace RtrsMapService_User
             if (e.ColumnIndex == 1)
             {
                 t = ActualData.li.Where(it => it.id_trans1 == id).Single();
-
+                tabControl1.SelectedIndex = 0;
             }
             else if (e.ColumnIndex == 2)
             {
                 t = ActualData.li.Where(it => it.id_trans2 == id).Single();
-                if (t.map_trans2 != null)
-                {
-                    string q = LoadItem.ImgMapPath + Path.GetFileName(t.map_trans2.map);
-                    if (File.Exists(q))
-                        img_trans_item_pb.Image = Image.FromFile(q);
-                }
+                tabControl1.SelectedIndex = 0;
             }
             else if (e.ColumnIndex == 0)
             {
@@ -536,7 +567,11 @@ namespace RtrsMapService_User
         #region MAPGEN
         private void start_generator_btn_Click(object sender, EventArgs e)
         {
-            BlockUI(false);
+            if (check_fl_isrun())
+                return;
+            else
+                fl_isrun = true;
+            //BlockUI(false);
             setlog("Генерация html запущена" + Environment.NewLine);
             if (sec_mult_gen_check.Checked == true & first_mult_gen_check.Checked == true)
             {
@@ -566,53 +601,19 @@ namespace RtrsMapService_User
                 case MultiSelect.both:
                     progressBar1.Maximum = ActualData.li.Count * 2;
                     setlog("Генерация для двух мультов" + Environment.NewLine);
-                    //Task ts = new Task(() =>
-                    //{
-                    //   fili1 = GetCSV(ActualData, MultiSelect.first);
-                    //    setlog("Запуск для первого мульта" + Environment.NewLine);
-                    //    MapBuilder(ActualData, fili1, StaticInfo.MultiSelect.first);
-                    //});
-                    //Task ts1 = new Task(() =>
-                    // {
-                    //   fili2 = GetCSV(ActualData, MultiSelect.second);
-                    //    setlog("Запуск для второго мульта" + Environment.NewLine);
-                    //    MapBuilder(ActualData, fili2, StaticInfo.MultiSelect.second);
-                    //});
-                    //await Task.WhenAll(ts, ts1); // not tested;
-                    //ts.Start();
-                    //ts1.Start();
                     await Task.WhenAll(testrunner(MultiSelect.first), testrunner(MultiSelect.second));
                     break;
                 case MultiSelect.first:
-
-
-
-
-                    //fili1 = GetCSV(ActualData, MultiSelect.first);
                     progressBar1.Maximum = ActualData.li.Count;
-                    //Task ts2 = new Task(() =>
-                    // {
-                    //    setlog("Запуск для первого мульта" + Environment.NewLine);
-                    //    MapBuilder(ActualData, fili1, StaticInfo.MultiSelect.first);
-                    //});
-                    //await Task.WhenAll(ts2);
-                    //ts2.Start();
                     await Task.WhenAll(testrunner(mu));
                     break;
                 case MultiSelect.second:
-                    //fili2 = GetCSV(ActualData, MultiSelect.second);
                     progressBar1.Maximum = ActualData.li.Count;
-                    //Task ts3 = new Task(() =>
-                    //{
-                    //    setlog("Запуск для второго мульта" + Environment.NewLine);
-                    //    MapBuilder(ActualData, fili2, StaticInfo.MultiSelect.second);
-                    //});
-                    //await Task.WhenAll(ts3);
-                    //ts3.Start();
                     await Task.WhenAll(testrunner(mu));
                     break;
             }
-            BlockUI(true);
+            fl_isrun = false;
+            //BlockUI(true);
             GC.Collect(1, GCCollectionMode.Forced);
         }
         async Task<bool> testrunner(MultiSelect mu)
@@ -731,7 +732,7 @@ namespace RtrsMapService_User
                     srrww.Close();
                     setlog("Сгенерированный файл сохранен" + Environment.NewLine);
                     setlog("Путь к файлу: " + htmlplex1path + Environment.NewLine);
-                    System.Diagnostics.Process.Start(htmlplex1path);
+                    System.Diagnostics.Process.Start($"http://localhost:{ServPort}/resources/{Path.GetFileName(htmlplex1path)}");
                     srrww.Dispose();
                     break;
                 case MultiSelect.second:
@@ -740,7 +741,7 @@ namespace RtrsMapService_User
                     srrww.Close();
                     setlog("Сгенерированный файл сохранен" + Environment.NewLine);
                     setlog("Путь к файлу: " + htmlplex2path + Environment.NewLine);
-                    System.Diagnostics.Process.Start($"localhost:{ServPort}/resources/{Path.GetFileName(htmlplex2path)}");
+                    System.Diagnostics.Process.Start($"http://localhost:{ServPort}/resources/{Path.GetFileName(htmlplex2path)}");
                     srrww.Dispose();
                     break;
             }
@@ -828,5 +829,7 @@ namespace RtrsMapService_User
             }
         }
         #endregion
+
+
     }
 }

@@ -163,6 +163,7 @@
     <None Include="Resources\back.png" />
     <None Include="Resources\refresh.png" />
     <EmbeddedResource Include="Resources\mult.html" />
+    <None Include="Resources\goto.png" />
     <Content Include="server\404.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

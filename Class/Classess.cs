@@ -443,7 +443,7 @@ namespace RtrsMapService_User
                 return outs;
             }
             else
-                return $"L.imageOverlay('/mapimg/{png_name}', [[0,0],[0,0]]);";
+                return $"L.imageOverlay('', [[0,0],[0,0]]);";///mapimg/{png_name}', [[0,0],[0,0]]);";
 
         }
     }
