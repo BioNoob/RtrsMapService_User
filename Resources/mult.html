@@ -13,7 +13,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-easybutton@2/src/easy-button.css">
     <script src="https://cdn.jsdelivr.net/npm/leaflet-easybutton@2/src/easy-button.js"></script>
     <script src="https://api-maps.yandex.ru/2.1/?lang=en_RU&amp;apikey=36d0fe36-55fc-4f6d-ac72-feb2f0c2124c" type="text/javascript"></script>
-    <script src="../dist/Yandex.js"></script>
     <script src="../dist/bundle.js"></script>
     <style>
         html, body {
@@ -58,16 +57,18 @@
         //спутник
         var c5 = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', { subdomains: ['mt0', 'mt1', 'mt2', 'mt3'], attribution: 'Данная карта предназначена для внутреннего пользования  <a href="https://rtrs.ru/">ФГУП «Российская телевизионная и радиовещательная сеть» (РТРС)</a>' });
 
-        var y1 = L.yandex({ type: 'satellite', attribution: 'Данная карта предназначена для внутреннего пользования  <a href="https://rtrs.ru/">ФГУП «Российская телевизионная и радиовещательная сеть» (РТРС)</a>' });
-        var y4 = L.yandex({ type: 'map~vector', attribution: 'Данная карта предназначена для внутреннего пользования  <a href="https://rtrs.ru/">ФГУП «Российская телевизионная и радиовещательная сеть» (РТРС)</a>' });
-        var y3 = L.yandex({ type: 'hybrid', attribution: 'Данная карта предназначена для внутреннего пользования  <a href="https://rtrs.ru/">ФГУП «Российская телевизионная и радиовещательная сеть» (РТРС)</a>' });
-        var y2 = L.yandex({ type: 'map', attribution: 'Данная карта предназначена для внутреннего пользования  <a href="https://rtrs.ru/">ФГУП «Российская телевизионная и радиовещательная сеть» (РТРС)</a>' });
-        y1.on('load', deletecopy);
-        y2.on('load', deletecopy);
-        y3.on('load', deletecopy);
-        y4.on('load', deletecopy);
 
-        var mapQ3 = L.map('mapid3', { fullscreenControl: true, layers: [c5, c4, c3, c2, c1, y1, y2, y3, y4] }).setView([64.5708852, 107.9595965], 4);
+        var s1 = L.tileLayer('https://vec{s}.maps.yandex.net/tiles?l=map&x={x}&y={y}&z={z}&scale=1&lang=en_RU', { subdomains: ['01', '02', '03', '04'], reuseTiles: true, updateWhenIdle: false, attribution: 'Данная карта предназначена для внутреннего пользования  <a href="https://rtrs.ru/">ФГУП «Российская телевизионная и радиовещательная сеть» (РТРС)</a>' });
+        var s2 = L.tileLayer('https://core-sat.maps.yandex.net/tiles?l=sat&x={x}&y={y}&z={z}&lang=en_RU', { subdomains: ['01', '02', '03', '04'], reuseTiles: true, updateWhenIdle: false, attribution: 'Данная карта предназначена для внутреннего пользования  <a href="https://rtrs.ru/">ФГУП «Российская телевизионная и радиовещательная сеть» (РТРС)</a>' });
+        var s3_1 = L.tileLayer('https://vec{s}.maps.yandex.net/tiles?l=skl&x={x}&y={y}&z={z}&scale=1&lang=en_RU', { subdomains: ['01', '02', '03', '04'], reuseTiles: true, updateWhenIdle: false, attribution: 'Данная карта предназначена для внутреннего пользования  <a href="https://rtrs.ru/">ФГУП «Российская телевизионная и радиовещательная сеть» (РТРС)</a>' });
+        var s3_2 = L.tileLayer('https://core-sat.maps.yandex.net/tiles?l=sat&x={x}&y={y}&z={z}&lang=en_RU', { subdomains: ['01', '02', '03', '04'], reuseTiles: true, updateWhenIdle: false, attribution: 'Данная карта предназначена для внутреннего пользования  <a href="https://rtrs.ru/">ФГУП «Российская телевизионная и радиовещательная сеть» (РТРС)</a>' });
+        s1.on('load', deletecopy);
+        s2.on('load', deletecopy);
+        s3_1.on('load', deletecopy);
+        s3_2.on('load', deletecopy);
+        var s3 = L.layerGroup([s3_2, s3_1]);
+
+        var mapQ3 = L.map('mapid3').setView([64.5708852, 107.9595965], 4);
 
         L.easyButton('<i class="material-icons">printer</i>', function () {
             manualPrint();
@@ -102,8 +103,8 @@
             div.innerHTML = `
             <div class="leaflet-control-layers leaflet-control-layers-expanded">
                 <div style="margin-bottom: 5px;">
-                    <input type="text" placeholder="Ширина" id="new_width" style="font-family: Jura; height: 15px; width: 50px"/>
-                    <input placeholder="Высота" id="new_height" style="font-family: Jura; height: 15px; width: 50px; margin-left:10px"/>
+                    <input type="text" placeholder="Ширина" id="new_width" style="font-family: Jura; height: 15px; width: 53px"/>
+                    <input placeholder="Высота" id="new_height" style="font-family: Jura; height: 15px; width: 53px; margin-left:10px"/>
                 </div>
                 <button onclick=toggleFunction() style="font-family: Jura; height: 20px; width: 100%">Установить</button>
             </div>`;

@@ -246,31 +246,25 @@ namespace RtrsMapService_User
             switch (LastLayerName)
             {
                 case "Фон":
-                    fileContents = fileContents.Replace("y3.addTo(map);", "c1.addTo(map);");
+                    fileContents = fileContents.Replace("s1.addTo(map);", "c1.addTo(map);");
                     break;
                 case "Карта гугл(спутник)":
-                    fileContents = fileContents.Replace("y3.addTo(map);", "c5.addTo(map);");
+                    fileContents = fileContents.Replace("s1.addTo(map);", "c5.addTo(map);");
                     break;
                 case "Карта гугл(гибрид)":
-                    fileContents = fileContents.Replace("y3.addTo(map);", "c4.addTo(map);");
+                    fileContents = fileContents.Replace("s1.addTo(map);", "c4.addTo(map);");
                     break;
                 case "Карта гугл(улицы)":
-                    fileContents = fileContents.Replace("y3.addTo(map);", "c2.addTo(map);");
+                    fileContents = fileContents.Replace("s1.addTo(map);", "c2.addTo(map);");
                     break;
                 case "Карта гугл(земля)":
-                    fileContents = fileContents.Replace("y3.addTo(map);", "c3.addTo(map);");
+                    fileContents = fileContents.Replace("s1.addTo(map);", "c3.addTo(map);");
                     break;
                 case "Карта яндекс(спутник)":
-                    fileContents = fileContents.Replace("y3.addTo(map);", "y1.addTo(map);");
+                    fileContents = fileContents.Replace("s1.addTo(map);", "s2.addTo(map);");
                     break;
-                case "Карта яндекс(улицы)":
-                    fileContents = fileContents.Replace("y3.addTo(map);", "y2.addTo(map);");
-                    break;
-                //case "Карта яндекс(гибрид)":
-                //    fileContents = fileContents.Replace("y3.addTo(map);", "");
-                //    break;
-                case "Карта яндекс(вектор)":
-                    fileContents = fileContents.Replace("y3.addTo(map);", "y4.addTo(map);");
+                case "Карта яндекс(гибрид)":
+                    fileContents = fileContents.Replace("s1.addTo(map);", "s3.addTo(map);");
                     break;
             }
             fileContents = fileContents.Replace("SWLAT", sw_lat_txt.Text);

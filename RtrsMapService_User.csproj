@@ -173,9 +173,6 @@
     <Content Include="server\dist\L.Path.Drag1.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="server\dist\Yandex.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="server\ico\anchor.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

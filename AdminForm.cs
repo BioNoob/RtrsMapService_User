@@ -75,7 +75,7 @@ namespace RtrsMapService_User
             setlog("Проверка времени последнего обновления базы на сервере RTRS начата..." + Environment.NewLine);
             var t = await Downloader_tower();
             current_time_twr_txt.Text = t.Time.ToString();
-            setlog("Время последнего обновления баз на сервере RTRS: " + ActualData.Time.ToString() + Environment.NewLine);
+            setlog("Время последнего обновления баз на сервере RTRS: " + t.Time.ToString() + Environment.NewLine);
             fl_isrun = false;
         }
 
@@ -266,8 +266,8 @@ namespace RtrsMapService_User
             var t_s = ActualData.li.Where(q => q.id <= cnt / 2).ToList();
             var t_e = ActualData.li.Where(q => q.id > cnt / 2).ToList();
             await Task.WhenAll(LoadWorkerRunner(t_s), LoadWorkerRunner(t_e));
-
-            setlog($"Загрузка инофрмации о мультиплексах завершена. Время завершения: {DateTime.Now}" + Environment.NewLine);
+            ActualData.PlexLoad = DateTime.Now;
+            setlog($"Загрузка инофрмации о мультиплексах завершена. Время завершения: {ActualData.PlexLoad}" + Environment.NewLine);
             start_generator_btn.Enabled = true;
             SaveJson(ActualData);
             _Timer.Stop();
@@ -339,6 +339,7 @@ namespace RtrsMapService_User
                 //bss.DataSource = ActualData.li; bss.ResetBindings(false); base_dgrv.Refresh();
                 setlog($"Загружена база. Время обновления: {ActualData.Time.ToString()}\n");
                 dt_time_actual.Text = ActualData.Time.ToString();
+                last_multi_download.Text = ActualData.PlexLoad.ToString();
                 btn_download_multi.Enabled = true;
             }
             else
@@ -668,7 +669,7 @@ namespace RtrsMapService_User
                 scht++;
             }
             string ending_fin = $"var baseMaps = {{{helps}}};\n\tvar overlayMaps ={{\"Фон\": c1,\"Карта гугл(спутник)\": c5,\"Карта гугл(гибрид)\": c4, \"Карта гугл(улицы)\": c2,\"Карта гугл(земля)\": c3,\"" +
-                "Карта яндекс(спутник)\": y1, \"Карта яндекс(улицы)\": y2, \"Карта яндекс(гибрид)\": y3, \"Карта яндекс(вектор)\": y4 };\n\tL.control.layers(overlayMaps, baseMaps).addTo(mapQ3);\n\t";
+                "Карта яндекс(спутник)\": s2, \"Карта яндекс(улицы)\": s1, \"Карта яндекс(гибрид)\": s3};\n\tL.control.layers(overlayMaps, baseMaps).addTo(mapQ3); s1.addTo(mapQ3);\n\t";
             setlog("Запуск процесса распределения" + Environment.NewLine);
             foreach (var item in dta.li)
             {

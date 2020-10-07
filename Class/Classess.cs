@@ -456,6 +456,8 @@ namespace RtrsMapService_User
         [JsonProperty("updated")]
         public int DtTime { get; set; }
         //public DateTime MultiTime { get; set; }
+        [JsonProperty("plex_updated")]
+        public DateTime PlexLoad { get; set; }
 
         [JsonIgnore]
         public DateTime Time

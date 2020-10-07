@@ -41,7 +41,6 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin="">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://api-maps.yandex.ru/2.1/?lang=en_RU&amp;apikey=36d0fe36-55fc-4f6d-ac72-feb2f0c2124c" type="text/javascript"></script>
-    <script src="../dist/Yandex.js"></script>
     <script>
         var myIconRED = L.icon({
             iconUrl: '/ico/tower_ico_red.png',
@@ -162,16 +161,17 @@
         else {
             var baseMaps = { "Зона": b2 };
         }
-        var y1 = L.yandex({ type: 'satellite', attribution: 'Данная карта предназначена для внутреннего пользования  <a href="https://rtrs.ru/">ФГУП «Российская телевизионная и радиовещательная сеть» (РТРС)</a>' });
-        var y4 = L.yandex({ type: 'map~vector', attribution: 'Данная карта предназначена для внутреннего пользования  <a href="https://rtrs.ru/">ФГУП «Российская телевизионная и радиовещательная сеть» (РТРС)</a>' });
-        var y3 = L.yandex({ type: 'hybrid', attribution: 'Данная карта предназначена для внутреннего пользования  <a href="https://rtrs.ru/">ФГУП «Российская телевизионная и радиовещательная сеть» (РТРС)</a>' });
-        var y2 = L.yandex({ type: 'map', attribution: 'Данная карта предназначена для внутреннего пользования  <a href="https://rtrs.ru/">ФГУП «Российская телевизионная и радиовещательная сеть» (РТРС)</a>' });
-        y1.on('load', deletecopy);
-        y2.on('load', deletecopy);
-        y3.on('load', deletecopy);
-        y4.on('load', deletecopy);
+        var s1 = L.tileLayer('https://vec{s}.maps.yandex.net/tiles?l=map&x={x}&y={y}&z={z}&scale=1&lang=en_RU', { subdomains: ['01', '02', '03', '04'], reuseTiles: true, updateWhenIdle: false, attribution: 'Данная карта предназначена для внутреннего пользования  <a href="https://rtrs.ru/">ФГУП «Российская телевизионная и радиовещательная сеть» (РТРС)</a>' });
+        var s2 = L.tileLayer('https://core-sat.maps.yandex.net/tiles?l=sat&x={x}&y={y}&z={z}&lang=en_RU', { subdomains: ['01', '02', '03', '04'], reuseTiles: true, updateWhenIdle: false, attribution: 'Данная карта предназначена для внутреннего пользования  <a href="https://rtrs.ru/">ФГУП «Российская телевизионная и радиовещательная сеть» (РТРС)</a>' });
+        var s3_1 = L.tileLayer('https://vec{s}.maps.yandex.net/tiles?l=skl&x={x}&y={y}&z={z}&scale=1&lang=en_RU', { subdomains: ['01', '02', '03', '04'], reuseTiles: true, updateWhenIdle: false, attribution: 'Данная карта предназначена для внутреннего пользования  <a href="https://rtrs.ru/">ФГУП «Российская телевизионная и радиовещательная сеть» (РТРС)</a>' });
+        var s3_2 = L.tileLayer('https://core-sat.maps.yandex.net/tiles?l=sat&x={x}&y={y}&z={z}&lang=en_RU', { subdomains: ['01', '02', '03', '04'], reuseTiles: true, updateWhenIdle: false, attribution: 'Данная карта предназначена для внутреннего пользования  <a href="https://rtrs.ru/">ФГУП «Российская телевизионная и радиовещательная сеть» (РТРС)</a>' });
+        s1.on('load', deletecopy);
+        s2.on('load', deletecopy);
+        s3_1.on('load', deletecopy);
+        s3_2.on('load', deletecopy);
+        var s3 = L.layerGroup([s3_2, s3_1]);
 
-        var overlayMaps = { "Фон": c1, "Карта гугл(спутник)": c5, "Карта гугл(гибрид)": c4, "Карта гугл(улицы)": c2, "Карта гугл(земля)": c3, "Карта яндекс(спутник)": y1, "Карта яндекс(улицы)": y2, "Карта яндекс(гибрид)": y3, "Карта яндекс(вектор)": y4 };
+        var overlayMaps = { "Фон": c1, "Карта гугл(спутник)": c5, "Карта гугл(гибрид)": c4, "Карта гугл(улицы)": c2, "Карта гугл(земля)": c3, "Карта яндекс(спутник)": s2, "Карта яндекс(улицы)": s1, "Карта яндекс(гибрид)": s3};
         var layer_ctrl = L.control.layers(overlayMaps, baseMaps);//.addTo(map);
         layer_ctrl.addTo(map);
         map.setMaxBounds(qew);
@@ -184,8 +184,8 @@
             exportOnly: true,
             hideControlContainer: true
         }).addTo(map);
-        y3.addTo(map);
-        document.getElementById("currlayer").textContent = y3.name;
+        s1.addTo(map);
+        document.getElementById("currlayer").textContent = s1.name;
         map.on('baselayerchange', changelayer);
 
 
