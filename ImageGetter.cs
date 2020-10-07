@@ -16,6 +16,7 @@ namespace RtrsMapService_User
     {
         SaveFileDialog sfd = new SaveFileDialog();
         SimleMapForm mbr = null;
+        bool browser = false;
         public ImageGetter(bool enable_browser = true, bool enable_admin = false)
         {
             InitializeComponent();
@@ -29,10 +30,18 @@ namespace RtrsMapService_User
             {
                 mbr = new SimleMapForm();
                 mbr.Show();
+                browser = true;
+                status_transfer_lbl.Text = "";
+            }
+            else
+            {
+                transfer_btn.Enabled = false;
+                status_transfer_lbl.Text = "Браузер выключен";
+                browser = false;
             }
             if (enable_admin)
             {
-                AdminForm adm = new AdminForm();
+                AdminForm adm = new AdminForm(enable_browser);
                 adm.Show();
             }
         }
@@ -139,7 +148,7 @@ namespace RtrsMapService_User
             }
             Placer(li_loc, 1);
             save_img_btn.Enabled = true;
-            transfer_btn.Enabled = true;
+            transfer_btn.Enabled = browser; //true;
             SaveSet();
             toolStripProgressBar1.ProgressBar.Visible = false;
             GC.Collect(1,GCCollectionMode.Forced);

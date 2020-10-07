@@ -1,5 +1,5 @@
-﻿using CefSharp;
-using CefSharp.WinForms;
+﻿//using CefSharp;
+//using CefSharp.WinForms;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -64,10 +64,18 @@ namespace RtrsMapService_User
             var list = new List<string>(args);
             admin_mode = list.Exists(t => t.Contains("admin"));
             no_browser_mode = list.Exists(t => t.Contains("noBrowser"));
-            if (!no_browser_mode)
+            if (no_browser_mode)
+            {
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+                var form = new ImageGetter(!no_browser_mode, admin_mode);
+                Application.Run(form);
+            }
+            else
+            {
                 AppDomain.CurrentDomain.AssemblyResolve += Resolver;
-            LoadApp();
-
+                LoadApp();
+            }
         }
         public static void SetterLoad()
         {
@@ -80,32 +88,28 @@ namespace RtrsMapService_User
         [MethodImpl(MethodImplOptions.NoInlining)]
         private static void LoadApp()
         {
-            if (!no_browser_mode)
-            {
-                var settings = new CefSettings();
+            var settings = new CefSharp.WinForms.CefSettings();
 
-                // Set BrowserSubProcessPath based on app bitness at runtime
-                settings.BrowserSubprocessPath = Path.Combine(AppDomain.CurrentDomain.SetupInformation.ApplicationBase,
-                                                       Environment.Is64BitProcess ? "x64" : "x86",
-                                                       "CefSharp.BrowserSubprocess.exe");
-                settings.WindowlessRenderingEnabled = true;
-                settings.SetOffScreenRenderingBestPerformanceArgs();
+            // Set BrowserSubProcessPath based on app bitness at runtime
+            settings.BrowserSubprocessPath = Path.Combine(AppDomain.CurrentDomain.SetupInformation.ApplicationBase,
+                                                   Environment.Is64BitProcess ? "x64" : "x86",
+                                                   "CefSharp.BrowserSubprocess.exe");
+            settings.WindowlessRenderingEnabled = true;
+            settings.SetOffScreenRenderingBestPerformanceArgs();
 
-                // Make sure you set performDependencyCheck false
-                Cef.Initialize(settings, performDependencyCheck: false, browserProcessHandler: null);
-                Cef.EnableHighDPISupport();
-            }
+            // Make sure you set performDependencyCheck false
+            CefSharp.Cef.Initialize(settings, performDependencyCheck: false, browserProcessHandler: null);
+            CefSharp.Cef.EnableHighDPISupport();
+            Application.ApplicationExit += Application_ApplicationExit;
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            if (!no_browser_mode)
-                Application.ApplicationExit += Application_ApplicationExit;
             var form = new ImageGetter(!no_browser_mode, admin_mode);
             Application.Run(form);
         }
 
         private static void Application_ApplicationExit(object sender, EventArgs e)
         {
-            Cef.Shutdown();
+            CefSharp.Cef.Shutdown();
         }
         private static Assembly Resolver(object sender, ResolveEventArgs args)
         {
@@ -115,7 +119,6 @@ namespace RtrsMapService_User
                 string archSpecificPath = Path.Combine(AppDomain.CurrentDomain.SetupInformation.ApplicationBase,
                                                        Environment.Is64BitProcess ? "x64" : "x86",
                                                        assemblyName);
-
                 return File.Exists(archSpecificPath)
                            ? Assembly.LoadFile(archSpecificPath)
                            : null;

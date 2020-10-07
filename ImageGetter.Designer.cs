@@ -56,6 +56,7 @@
             this.label8 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
             this.out_img = new System.Windows.Forms.PictureBox();
+            this.status_transfer_lbl = new System.Windows.Forms.Label();
             this.statusStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.panel3.SuspendLayout();
@@ -143,6 +144,7 @@
             // 
             // panel3
             // 
+            this.panel3.Controls.Add(this.status_transfer_lbl);
             this.panel3.Controls.Add(this.transfer_btn);
             this.panel3.Controls.Add(this.lon_center_txt);
             this.panel3.Controls.Add(this.lat_center_txt);
@@ -326,6 +328,16 @@
             this.out_img.MouseEnter += new System.EventHandler(this.ImageGetter_MouseEnter);
             this.out_img.MouseLeave += new System.EventHandler(this.ImageGetter_MouseLeave);
             // 
+            // status_transfer_lbl
+            // 
+            this.status_transfer_lbl.ForeColor = System.Drawing.Color.Red;
+            this.status_transfer_lbl.Location = new System.Drawing.Point(234, 118);
+            this.status_transfer_lbl.Name = "status_transfer_lbl";
+            this.status_transfer_lbl.Size = new System.Drawing.Size(107, 16);
+            this.status_transfer_lbl.TabIndex = 55;
+            this.status_transfer_lbl.Text = "Браузер выключен";
+            this.status_transfer_lbl.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            // 
             // ImageGetter
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -385,6 +397,7 @@
         private System.Windows.Forms.TextBox lat_center_txt;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label status_transfer_lbl;
     }
 }
 

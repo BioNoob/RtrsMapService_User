@@ -144,11 +144,13 @@ namespace RtrsMapService_User.Class
 
         private void Listen()
         {
+            bool fl_is_err = false;
             int clone_port = _port;
             while (true)
             {
                 try
                 {
+                    fl_is_err = false;
                     _listener = new HttpListener();
                     string q = "http://localhost:" + _port.ToString() + "/";
                     _listener.Prefixes.Add(q);
@@ -156,16 +158,18 @@ namespace RtrsMapService_User.Class
                 }
                 catch (Exception)
                 {
-                    if (clone_port - _port > 20)
+                    fl_is_err = true;
+                    if (_port - clone_port > 20)
                     {
-                        var t = System.Windows.Forms.MessageBox.Show($"Попытка запуска сервера на портах {_port}:{clone_port} провалена.\nПовторите запуск в режиме администратора", "Ошибка", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Error);
+                        var t = System.Windows.Forms.MessageBox.Show($"Попытка запуска сервера на портах {clone_port}...{_port} провалена.\nПовторите запуск в режиме администратора\nИли измените стартовый порт", "Ошибка", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Error);
                         if (t == System.Windows.Forms.DialogResult.OK)
                             StaticInfo.ThrowServerErr();
                         return;
                     }
                     _port++;
                 }
-                break;
+                if(!fl_is_err)
+                    break;
             }
             while (true)
             {
