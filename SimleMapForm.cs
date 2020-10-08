@@ -119,6 +119,7 @@ namespace RtrsMapService_User
         }
         public void InitializeLocalHost()
         {
+            Thread.Sleep(1500);
             myServer = new SimpleHTTPServer(ServerPath, ServPort);
         }
 
@@ -246,25 +247,25 @@ namespace RtrsMapService_User
             switch (LastLayerName)
             {
                 case "Фон":
-                    fileContents = fileContents.Replace("s1.addTo(map);", "c1.addTo(map);");
+                    fileContents = fileContents.Replace("s1.addTo(map); map.options.crs = L.CRS.EPSG3395;", "c1.addTo(map); map.options.crs = L.CRS.EPSG3857;");
                     break;
                 case "Карта гугл(спутник)":
-                    fileContents = fileContents.Replace("s1.addTo(map);", "c5.addTo(map);");
+                    fileContents = fileContents.Replace("s1.addTo(map); map.options.crs = L.CRS.EPSG3395;", "c5.addTo(map); map.options.crs = L.CRS.EPSG3857;");
                     break;
                 case "Карта гугл(гибрид)":
-                    fileContents = fileContents.Replace("s1.addTo(map);", "c4.addTo(map);");
+                    fileContents = fileContents.Replace("s1.addTo(map); map.options.crs = L.CRS.EPSG3395;", "c4.addTo(map); map.options.crs = L.CRS.EPSG3857;");
                     break;
                 case "Карта гугл(улицы)":
-                    fileContents = fileContents.Replace("s1.addTo(map);", "c2.addTo(map);");
+                    fileContents = fileContents.Replace("s1.addTo(map); map.options.crs = L.CRS.EPSG3395;", "c2.addTo(map); map.options.crs = L.CRS.EPSG3857;");
                     break;
                 case "Карта гугл(земля)":
-                    fileContents = fileContents.Replace("s1.addTo(map);", "c3.addTo(map);");
+                    fileContents = fileContents.Replace("s1.addTo(map); map.options.crs = L.CRS.EPSG3395;", "c3.addTo(map); map.options.crs = L.CRS.EPSG3857;");
                     break;
                 case "Карта яндекс(спутник)":
-                    fileContents = fileContents.Replace("s1.addTo(map);", "s2.addTo(map);");
+                    fileContents = fileContents.Replace("s1.addTo(map); map.options.crs = L.CRS.EPSG3395;", "s2.addTo(map); map.options.crs = L.CRS.EPSG3395;");
                     break;
                 case "Карта яндекс(гибрид)":
-                    fileContents = fileContents.Replace("s1.addTo(map);", "s3.addTo(map);");
+                    fileContents = fileContents.Replace("s1.addTo(map); map.options.crs = L.CRS.EPSG3395;", "s3.addTo(map); map.options.crs = L.CRS.EPSG3395;");
                     break;
             }
             fileContents = fileContents.Replace("SWLAT", sw_lat_txt.Text);

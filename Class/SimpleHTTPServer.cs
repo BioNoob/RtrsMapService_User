@@ -139,13 +139,15 @@ namespace RtrsMapService_User.Class
         public void Stop()
         {
             _serverThread.Abort();
-            _listener.Stop();
+            if (State)
+                _listener.Stop();
         }
 
         private void Listen()
         {
             bool fl_is_err = false;
             int clone_port = _port;
+
             while (true)
             {
                 try
@@ -159,16 +161,31 @@ namespace RtrsMapService_User.Class
                 catch (Exception)
                 {
                     fl_is_err = true;
-                    if (_port - clone_port > 20)
+                    if (_port - clone_port > 50)
                     {
-                        var t = System.Windows.Forms.MessageBox.Show($"Попытка запуска сервера на портах {clone_port}...{_port} провалена.\nПовторите запуск в режиме администратора\nИли измените стартовый порт", "Ошибка", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Error);
-                        if (t == System.Windows.Forms.DialogResult.OK)
+                        var req = new RequestForm($"Попытка запуска сервера на портах {clone_port}...{_port} провалена.\nПовторите запуск в режиме администратора\nИли измените стартовый порт", "Ошибка", "Порт");
+                        //req.TopLevel = true;
+                        //var t = System.Windows.Forms.MessageBox.Show($"Попытка запуска сервера на портах {clone_port}...{_port} провалена.\nПовторите запуск в режиме администратора\nИли измените стартовый порт", "Ошибка", System.Windows.Forms.MessageBoxButtons.OKCancel, System.Windows.Forms.MessageBoxIcon.Error);
+                        var res = req.ShowDialog();
+                        if (res == System.Windows.Forms.DialogResult.Cancel)
+                        {
                             StaticInfo.ThrowServerErr();
-                        return;
+                            return;
+                        }
+                        else if (res == System.Windows.Forms.DialogResult.OK)
+                        {
+                            _port = int.Parse(req.GetInput) - 1;
+                            clone_port = _port + 1;
+                        }
+                        else
+                        {
+                            StaticInfo.ThrowServerErr();
+                            return;
+                        }
                     }
                     _port++;
                 }
-                if(!fl_is_err)
+                if (!fl_is_err)
                     break;
             }
             while (true)

@@ -260,6 +260,8 @@ namespace RtrsMapService_User
             var t_e = ActualData.li.Where(q => q.id > cnt / 2).ToList();
             await Task.WhenAll(LoadWorkerRunner(t_s), LoadWorkerRunner(t_e));
             ActualData.PlexLoad = DateTime.Now;
+            last_multi_download.Text = ActualData.PlexLoad.ToString();
+            multi_check.Checked = true;
             setlog($"Загрузка инофрмации о мультиплексах завершена. Время завершения: {ActualData.PlexLoad}" + Environment.NewLine);
             start_generator_btn.Enabled = true;
             SaveJson(ActualData);
@@ -566,7 +568,7 @@ namespace RtrsMapService_User
             else
                 fl_isrun = true;
             //BlockUI(false);
-            setlog("Генерация html запущена" + Environment.NewLine);
+            setlog("Генерация html запущена. Ожидайте..." + Environment.NewLine);
             if (sec_mult_gen_check.Checked == true & first_mult_gen_check.Checked == true)
             {
                 Generator(MultiSelect.both);
@@ -769,9 +771,9 @@ namespace RtrsMapService_User
                 else
                 {
                     if (mu == MultiSelect.first)
-                        setlog("Не найдена зона покрытия " + qqww[0] + " в 1ом мульте" + Environment.NewLine);
+                        setlog("Не найдена зона покрытия " + qqww[0] + " в csv фалйе 1ого мульта" + Environment.NewLine);
                     else
-                        setlog("Не найдена зона покрытия " + qqww[0] + " во 2ом мульте" + Environment.NewLine);
+                        setlog("Не найдена зона покрытия " + qqww[0] + " в csv фалйе 2ого мульта" + Environment.NewLine);
                 }
                 if (!FILIAL.Contains(qqww[1]))
                     FILIAL.Add(qqww[1]);
