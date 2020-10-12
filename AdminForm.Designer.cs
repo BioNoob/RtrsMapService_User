@@ -38,6 +38,8 @@
             this.label2 = new System.Windows.Forms.Label();
             this.log_box = new System.Windows.Forms.RichTextBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.button2 = new System.Windows.Forms.Button();
+            this.show_gen_btn = new System.Windows.Forms.Button();
             this.label18 = new System.Windows.Forms.Label();
             this.port_txt = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
@@ -48,6 +50,7 @@
             this.first_mult_gen_check = new System.Windows.Forms.CheckBox();
             this.start_generator_btn = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.get_act_date = new System.Windows.Forms.Button();
             this.label6 = new System.Windows.Forms.Label();
             this.current_time_twr_txt = new System.Windows.Forms.TextBox();
             this.tower_check = new System.Windows.Forms.CheckBox();
@@ -60,6 +63,8 @@
             this.id_trans2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.label17 = new System.Windows.Forms.Label();
+            this.search_b_btn = new System.Windows.Forms.Button();
+            this.search_f_btn = new System.Windows.Forms.Button();
             this.search_txt = new System.Windows.Forms.TextBox();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
@@ -75,6 +80,7 @@
             this.plex_sw_lon_txt = new System.Windows.Forms.TextBox();
             this.plex_sw_lat_txt = new System.Windows.Forms.TextBox();
             this.file_name_txt = new System.Windows.Forms.TextBox();
+            this.img_trans_item_pb = new System.Windows.Forms.PictureBox();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.show_2st_info_btn = new System.Windows.Forms.Button();
             this.show_1st_info_btn = new System.Windows.Forms.Button();
@@ -86,12 +92,6 @@
             this.tower_lon_txt = new System.Windows.Forms.TextBox();
             this.label12 = new System.Windows.Forms.Label();
             this.tower_lat_txt = new System.Windows.Forms.TextBox();
-            this.button2 = new System.Windows.Forms.Button();
-            this.search_b_btn = new System.Windows.Forms.Button();
-            this.search_f_btn = new System.Windows.Forms.Button();
-            this.img_trans_item_pb = new System.Windows.Forms.PictureBox();
-            this.show_gen_btn = new System.Windows.Forms.Button();
-            this.get_act_date = new System.Windows.Forms.Button();
             this.groupBox3.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -99,8 +99,8 @@
             this.groupBox4.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
-            this.tabPage2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.img_trans_item_pb)).BeginInit();
+            this.tabPage2.SuspendLayout();
             this.SuspendLayout();
             // 
             // progressBar1
@@ -208,6 +208,30 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Генерация карт";
             // 
+            // button2
+            // 
+            this.button2.BackgroundImage = global::RtrsMapService_User.Properties.Resources._goto;
+            this.button2.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.button2.Location = new System.Drawing.Point(192, 40);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(30, 30);
+            this.button2.TabIndex = 13;
+            this.button2.Tag = "2";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.show_gen_btn_Click);
+            // 
+            // show_gen_btn
+            // 
+            this.show_gen_btn.BackgroundImage = global::RtrsMapService_User.Properties.Resources._goto;
+            this.show_gen_btn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.show_gen_btn.Location = new System.Drawing.Point(192, 11);
+            this.show_gen_btn.Name = "show_gen_btn";
+            this.show_gen_btn.Size = new System.Drawing.Size(30, 30);
+            this.show_gen_btn.TabIndex = 12;
+            this.show_gen_btn.Tag = "1";
+            this.show_gen_btn.UseVisualStyleBackColor = true;
+            this.show_gen_btn.Click += new System.EventHandler(this.show_gen_btn_Click);
+            // 
             // label18
             // 
             this.label18.Location = new System.Drawing.Point(303, 59);
@@ -308,6 +332,17 @@
             this.groupBox1.TabIndex = 14;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "База вышек";
+            // 
+            // get_act_date
+            // 
+            this.get_act_date.BackgroundImage = global::RtrsMapService_User.Properties.Resources.refresh;
+            this.get_act_date.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.get_act_date.Location = new System.Drawing.Point(381, 69);
+            this.get_act_date.Name = "get_act_date";
+            this.get_act_date.Size = new System.Drawing.Size(30, 30);
+            this.get_act_date.TabIndex = 8;
+            this.get_act_date.UseVisualStyleBackColor = true;
+            this.get_act_date.Click += new System.EventHandler(this.get_act_date_Click);
             // 
             // label6
             // 
@@ -439,6 +474,31 @@
             this.label17.Size = new System.Drawing.Size(39, 13);
             this.label17.TabIndex = 13;
             this.label17.Text = "Поиск";
+            // 
+            // search_b_btn
+            // 
+            this.search_b_btn.BackgroundImage = global::RtrsMapService_User.Properties.Resources.back;
+            this.search_b_btn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.search_b_btn.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.search_b_btn.Location = new System.Drawing.Point(281, 12);
+            this.search_b_btn.Name = "search_b_btn";
+            this.search_b_btn.Size = new System.Drawing.Size(30, 25);
+            this.search_b_btn.TabIndex = 12;
+            this.search_b_btn.Tag = "backward";
+            this.search_b_btn.UseVisualStyleBackColor = true;
+            this.search_b_btn.Click += new System.EventHandler(this.search_f_btn_Click);
+            // 
+            // search_f_btn
+            // 
+            this.search_f_btn.BackgroundImage = global::RtrsMapService_User.Properties.Resources.forward;
+            this.search_f_btn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.search_f_btn.Location = new System.Drawing.Point(317, 12);
+            this.search_f_btn.Name = "search_f_btn";
+            this.search_f_btn.Size = new System.Drawing.Size(30, 25);
+            this.search_f_btn.TabIndex = 11;
+            this.search_f_btn.Tag = "forward";
+            this.search_f_btn.UseVisualStyleBackColor = true;
+            this.search_f_btn.Click += new System.EventHandler(this.search_f_btn_Click);
             // 
             // search_txt
             // 
@@ -603,6 +663,18 @@
             this.file_name_txt.TabIndex = 8;
             this.file_name_txt.TabStop = false;
             // 
+            // img_trans_item_pb
+            // 
+            this.img_trans_item_pb.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.img_trans_item_pb.Location = new System.Drawing.Point(6, 32);
+            this.img_trans_item_pb.Name = "img_trans_item_pb";
+            this.img_trans_item_pb.Size = new System.Drawing.Size(200, 210);
+            this.img_trans_item_pb.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.img_trans_item_pb.TabIndex = 7;
+            this.img_trans_item_pb.TabStop = false;
+            // 
             // tabPage2
             // 
             this.tabPage2.Controls.Add(this.show_2st_info_btn);
@@ -721,78 +793,6 @@
             this.tower_lat_txt.TabIndex = 17;
             this.tower_lat_txt.TabStop = false;
             // 
-            // button2
-            // 
-            this.button2.BackgroundImage = global::RtrsMapService_User.Properties.Resources._goto;
-            this.button2.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.button2.Location = new System.Drawing.Point(192, 40);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(30, 30);
-            this.button2.TabIndex = 13;
-            this.button2.Tag = "2";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.show_gen_btn_Click);
-            // 
-            // search_b_btn
-            // 
-            this.search_b_btn.BackgroundImage = global::RtrsMapService_User.Properties.Resources.back;
-            this.search_b_btn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.search_b_btn.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.search_b_btn.Location = new System.Drawing.Point(281, 12);
-            this.search_b_btn.Name = "search_b_btn";
-            this.search_b_btn.Size = new System.Drawing.Size(30, 25);
-            this.search_b_btn.TabIndex = 12;
-            this.search_b_btn.Tag = "backward";
-            this.search_b_btn.UseVisualStyleBackColor = true;
-            this.search_b_btn.Click += new System.EventHandler(this.search_f_btn_Click);
-            // 
-            // search_f_btn
-            // 
-            this.search_f_btn.BackgroundImage = global::RtrsMapService_User.Properties.Resources.forward;
-            this.search_f_btn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.search_f_btn.Location = new System.Drawing.Point(317, 12);
-            this.search_f_btn.Name = "search_f_btn";
-            this.search_f_btn.Size = new System.Drawing.Size(30, 25);
-            this.search_f_btn.TabIndex = 11;
-            this.search_f_btn.Tag = "forward";
-            this.search_f_btn.UseVisualStyleBackColor = true;
-            this.search_f_btn.Click += new System.EventHandler(this.search_f_btn_Click);
-            // 
-            // img_trans_item_pb
-            // 
-            this.img_trans_item_pb.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.img_trans_item_pb.Location = new System.Drawing.Point(6, 32);
-            this.img_trans_item_pb.Name = "img_trans_item_pb";
-            this.img_trans_item_pb.Size = new System.Drawing.Size(200, 210);
-            this.img_trans_item_pb.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.img_trans_item_pb.TabIndex = 7;
-            this.img_trans_item_pb.TabStop = false;
-            // 
-            // show_gen_btn
-            // 
-            this.show_gen_btn.BackgroundImage = global::RtrsMapService_User.Properties.Resources._goto;
-            this.show_gen_btn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.show_gen_btn.Location = new System.Drawing.Point(192, 11);
-            this.show_gen_btn.Name = "show_gen_btn";
-            this.show_gen_btn.Size = new System.Drawing.Size(30, 30);
-            this.show_gen_btn.TabIndex = 12;
-            this.show_gen_btn.Tag = "1";
-            this.show_gen_btn.UseVisualStyleBackColor = true;
-            this.show_gen_btn.Click += new System.EventHandler(this.show_gen_btn_Click);
-            // 
-            // get_act_date
-            // 
-            this.get_act_date.BackgroundImage = global::RtrsMapService_User.Properties.Resources.refresh;
-            this.get_act_date.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.get_act_date.Location = new System.Drawing.Point(381, 69);
-            this.get_act_date.Name = "get_act_date";
-            this.get_act_date.Size = new System.Drawing.Size(30, 30);
-            this.get_act_date.TabIndex = 8;
-            this.get_act_date.UseVisualStyleBackColor = true;
-            this.get_act_date.Click += new System.EventHandler(this.get_act_date_Click);
-            // 
             // AdminForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -808,7 +808,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MinimumSize = new System.Drawing.Size(742, 673);
             this.Name = "AdminForm";
-            this.Text = "AdminForm";
+            this.Text = "Админка";
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
             this.groupBox2.ResumeLayout(false);
@@ -821,9 +821,9 @@
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.tabPage1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.img_trans_item_pb)).EndInit();
             this.tabPage2.ResumeLayout(false);
             this.tabPage2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.img_trans_item_pb)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 

@@ -27,6 +27,7 @@ namespace RtrsMapService_User
         public Data ActualData { get; set; }
         public List<ImgItemInfo> ServerImgList { get; set; }
         Timer _Timer { get; set; }
+        Timer _RefreshDGR { get; set; }
         private bool fl_isrun { get; set; }
         private bool check_fl_isrun()
         {
@@ -54,10 +55,23 @@ namespace RtrsMapService_User
             this.Load += AdminForm_Load;
             search_rez = new List<Point>();
             _Timer = new Timer() { Interval = 100000 };
+            _RefreshDGR = new Timer() { Interval = 1200 };
+            _RefreshDGR.Tick += _RefreshDGR_Tick;
             _Timer.Tick += _Timer_Tick;
             _is_browser = is_browser;
             //Task.Delay(3000);
+            StaticInfo.Ev_CloseMainWindow += StaticInfo_Ev_CloseMainWindow;
 
+        }
+
+        private void StaticInfo_Ev_CloseMainWindow()
+        {
+            this.Close();
+        }
+
+        private void _RefreshDGR_Tick(object sender, EventArgs e)
+        {
+            RefreshDataGridView();
         }
 
         private void AdminForm_Load(object sender, EventArgs e)
@@ -294,6 +308,7 @@ namespace RtrsMapService_User
             cursize = cursize / 1024 / 1024;
 
             _Timer.Start();
+            _RefreshDGR.Start();
             progressBar1.Value = 0;
             progressBar1.Maximum = cnt + 1;
             setlog("Загрузка информации начата. Время начала: " + DateTime.Now.ToString() + Environment.NewLine);
@@ -301,11 +316,16 @@ namespace RtrsMapService_User
             setlog("Получение базы изображений..." + Environment.NewLine);
             ServerImgList = await ForImgCheckLoader();
             var sum = ServerImgList.Sum(q => q.size_mb);
-            if (MessageBox.Show($"Размер банка фотографий = {(int)sum} MB\nРазмер локальной папки с изображениями { cursize } MB\nДоступно {a.AvailableFreeSpace / (1024 * 1024)} MB\nПродолжить загрузку?",
-                "Внимание", MessageBoxButtons.YesNo,MessageBoxIcon.Warning) != DialogResult.Yes)
+            if (a.AvailableFreeSpace / (1024 * 1024) - sum < 1000)
             {
-                return;
+                if (MessageBox.Show($"Размер банка фотографий = {(int)sum} MB\nРазмер локальной папки с изображениями = { cursize } MB\n" +
+    $"Доступно на диске = {a.AvailableFreeSpace / (1024 * 1024)} MB\nПродолжить загрузку?",
+    "Внимание", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
+                {
+                    return;
+                }
             }
+
             //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! UDALIT'!
             //TextWriter tr = new StreamWriter(LoadItem.ExPath + "\\some.json", false);
             //tr.Write(JsonConvert.SerializeObject(ServerImgList));
@@ -320,6 +340,7 @@ namespace RtrsMapService_User
             }
             StartTime = DateTime.Now;
             await Task.WhenAll(LoadWorkerRunner(t_s), LoadWorkerRunner(t_e));
+
             ActualData.PlexLoad = DateTime.Now;
             last_multi_download.Text = ActualData.PlexLoad.ToString();
             multi_check.Checked = true;
@@ -327,6 +348,7 @@ namespace RtrsMapService_User
             start_generator_btn.Enabled = true;
             SaveJson(ActualData);
             _Timer.Stop();
+            _RefreshDGR.Stop();
             //BlockUI(true);
             fl_isrun = false;
         }
@@ -348,7 +370,6 @@ namespace RtrsMapService_User
                         setlog("Tower №" + item.id + "\t" + "Recived data 1 multi" + "\t" + (DateTime.Now - StartTime).ToString() + Environment.NewLine);
                     if (item.id_trans2 != 0)
                         setlog("Tower №" + item.id + "\t" + "Recived data 2 multi" + "\t" + (DateTime.Now - StartTime).ToString() + Environment.NewLine);
-                    RefreshDataGridView();
                     //BeginInvoke(new Action(() => { bss.DataSource = ActualData.li; bss.ResetBindings(false); base_dgrv.Refresh(); }));
                 }
                 catch (Exception ex)
@@ -441,7 +462,7 @@ namespace RtrsMapService_User
                 base_dgrv.DataSource = typeof(List<>);
                 base_dgrv.DataSource = ActualData.li;
                 //base_dgrv.AutoResizeColumns();
-                base_dgrv.Refresh();
+                //base_dgrv.Refresh();
             }));
 
         }
@@ -651,37 +672,44 @@ namespace RtrsMapService_User
         {
             progressBar1.Value = 0;
             setlog("Чтение таблиц декодировки" + Environment.NewLine);
-            List<string> fili2 = new List<string>();
-            List<string> fili1 = new List<string>();
+            //List<string> fili2 = new List<string>();
+            //List<string> fili1 = new List<string>();
+            List<string> fili = new List<string>();
+            if(mu == MultiSelect.both)
+            {
+                fili = GetCSV(ActualData, MultiSelect.first);
+                fili.AddRange(GetCSV(ActualData, MultiSelect.second));
+                fili = fili.Distinct().ToList();
+                fili.Sort();
+            }
             switch (mu)
             {
                 case MultiSelect.both:
                     progressBar1.Maximum = ActualData.li.Count * 2;
                     setlog("Генерация для двух мультов" + Environment.NewLine);
-                    await Task.WhenAll(GenTaskRunner(MultiSelect.first), GenTaskRunner(MultiSelect.second));
+                    await Task.WhenAll(GenTaskRunner(MultiSelect.first,fili), GenTaskRunner(MultiSelect.second, fili));
                     break;
                 case MultiSelect.first:
                     progressBar1.Maximum = ActualData.li.Count;
-                    await Task.WhenAll(GenTaskRunner(mu));
+                    await Task.WhenAll(GenTaskRunner(mu, fili));
                     break;
                 case MultiSelect.second:
                     progressBar1.Maximum = ActualData.li.Count;
-                    await Task.WhenAll(GenTaskRunner(mu));
+                    await Task.WhenAll(GenTaskRunner(mu, fili));
                     break;
             }
             fl_isrun = false;
             //BlockUI(true);
             GC.Collect(1, GCCollectionMode.Forced);
         }
-        async Task<bool> GenTaskRunner(MultiSelect mu)
+        async Task<bool> GenTaskRunner(MultiSelect mu, List<string> fili)
         {
-            var b = await Task.Run(() => GenTask(mu));
+            var b = await Task.Run(() => GenTask(mu,fili));
             return b;
         }
-        bool GenTask(MultiSelect mu)
+        bool GenTask(MultiSelect mu, List<string> fili)
         {
-            List<string> fili = new List<string>();
-            fili = GetCSV(ActualData, mu);
+
             switch (mu)
             {
                 case MultiSelect.first:
@@ -715,7 +743,6 @@ namespace RtrsMapService_User
             List<int> end_schet = new List<int>();
             int scht = 0;
             string helps = "";
-            FILIAL.Sort();
             setlog("Генерация слоев по филиалам" + Environment.NewLine);
             foreach (var item in FILIAL)
             {
@@ -762,7 +789,15 @@ namespace RtrsMapService_User
                 if (!string.IsNullOrEmpty(item.filial)) //нету id трансмит то зачем добавлять?
                 {
                     var o = FILIAL.IndexOf(item.filial);
-                    endings[o] = endings[o].Replace("])", item.PrintVar() + ",])");
+                    if(o < 0)
+                    {
+                        setlog($"Филиал {item.filial} в файле CSV_{blue} не найден. Изображение не будет добавлено" + Environment.NewLine);
+                    }
+                    else 
+                    {
+                        endings[o] = endings[o].Replace("])", item.PrintVar() + ",])");
+                    }
+
                 }
 
                 input = input.Replace("addTo(map)", "addTo(mapQ3)");
