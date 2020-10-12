@@ -106,7 +106,7 @@ namespace RtrsMapService_User
         private void StaticInfo_ThrowServerError()
         {
             this.Invoke(new Action(() => { StaticInfo_Ev_CloseMainWindow(); }));//Close(); }));
-            this.Invoke(new Action(() => { Dispose(); }));
+            //this.Invoke(new Action(() => { Dispose(); }));
         }
 
         public void InitializeChromium()
@@ -119,7 +119,7 @@ namespace RtrsMapService_User
         }
         public void InitializeLocalHost()
         {
-            Thread.Sleep(1500);
+            //Thread.Sleep(1500);
             myServer = new SimpleHTTPServer(ServerPath, ServPort);
         }
 

@@ -4,6 +4,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Net;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 /*
@@ -17,6 +18,8 @@ namespace RtrsMapService_User
         SaveFileDialog sfd = new SaveFileDialog();
         SimleMapForm mbr = null;
         bool browser = false;
+        bool _enable_browser;
+        bool _enable_admin;
         public ImageGetter(bool enable_browser = true, bool enable_admin = false)
         {
             InitializeComponent();
@@ -39,9 +42,16 @@ namespace RtrsMapService_User
                 status_transfer_lbl.Text = "Браузер выключен";
                 browser = false;
             }
-            if (enable_admin)
+            _enable_browser = enable_browser;
+            _enable_admin = enable_admin;
+            this.Load += ImageGetter_Load;
+        }
+        private async void ImageGetter_Load(object sender, EventArgs e)
+        {
+            await Task.Delay(500);
+            if (_enable_admin)
             {
-                AdminForm adm = new AdminForm(enable_browser);
+                AdminForm adm = new AdminForm(_enable_browser);
                 adm.Show();
             }
         }

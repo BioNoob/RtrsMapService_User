@@ -96,11 +96,13 @@ namespace RtrsMapService_User
     {
         public string name { get; set; }
         public DateTime dt { get; set; }
-
-        public ImgItemInfo(string _nm, DateTime _dt)
+        public double size_byte { get; set; }
+        public double size_mb { get { return size_byte / 1024 / 1024; } }
+        public ImgItemInfo(string _nm, DateTime _dt, double _size_byte)
         {
             name = _nm;
             dt = _dt;
+            size_byte = _size_byte;
         }
         public override string ToString()
         {
@@ -131,7 +133,7 @@ namespace RtrsMapService_User
         public string web_fili { get; set; }
         public string web_place { get; set; }
         public string er_string { get; set; }
-        
+
         public string filial { get; set; }
 
 
@@ -362,7 +364,7 @@ namespace RtrsMapService_User
                     {
                         var response = wb.DownloadString(getimg + id_trans2);
                         map_trans2 = JsonConvert.DeserializeObject<mapobj>(response);
-                        ImgChecker(list,map_trans2.map);
+                        ImgChecker(list, map_trans2.map);
                         map_trans2.web_tvk = tvk;
                     }
                 }
@@ -376,7 +378,7 @@ namespace RtrsMapService_User
         {
             string withIMG = ImgMapPath + Path.GetFileName(path);
             WebClient wb = new WebClient();
-            
+
             if (!File.Exists(withIMG))
             {
                 wb.DownloadFile(path, withIMG);

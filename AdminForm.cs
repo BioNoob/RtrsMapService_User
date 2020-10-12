@@ -38,6 +38,7 @@ namespace RtrsMapService_User
             return false;
         }
         public DateTime StartTime { get; set; }
+        bool _is_browser;
         public AdminForm(bool is_browser = true)
         {
             InitializeComponent();
@@ -54,14 +55,17 @@ namespace RtrsMapService_User
             search_rez = new List<Point>();
             _Timer = new Timer() { Interval = 100000 };
             _Timer.Tick += _Timer_Tick;
-            StaticInfo.DoGetServerState();
-            if (!is_browser)
-                status_server_txt.Text = "Не запущен";
+            _is_browser = is_browser;
+            //Task.Delay(3000);
+
         }
 
         private void AdminForm_Load(object sender, EventArgs e)
         {
             LoadData();
+            StaticInfo.DoGetServerState();
+            if (!_is_browser)
+                status_server_txt.Text = "Не запущен";
         }
         #region BASELOADER
         public async Task<Data> Downloader_tower()
@@ -158,8 +162,9 @@ namespace RtrsMapService_User
                     var response = await wb.DownloadStringTaskAsync("https://xn--80aa2azak.xn--p1aadc.xn--p1ai//images//map/?C=M;O=D");
                     HD.LoadHtml(response);
                 }
-                bool a = false, b = false;
+                bool a = false, b = false, c = false;
                 DateTime dt = new DateTime();
+                double size_byte = 0;
                 int i = 0;
                 string nm = string.Empty;
                 foreach (HtmlNode table in HD.DocumentNode.SelectNodes("//table"))
@@ -180,13 +185,35 @@ namespace RtrsMapService_User
                                 dt = DateTime.ParseExact(cel, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
                                 b = true;
                             }
-                            if (a && b)
+                            var t = Regex.Match(cel, @"^\d+(.\d)?(?'size'\D?)$");
+                            if (t.Success)
                             {
-                                ImgItemInfo iii = new ImgItemInfo(nm, dt);
+                                var gr = t.Groups["size"].Value;
+                                string z = "";
+                                if (!string.IsNullOrEmpty(gr))
+                                {
+                                    z = t.Value.Replace(gr, "");
+                                    if (gr.ToLower() == "m")
+                                        size_byte = double.Parse(z, CultureInfo.InvariantCulture) * 1024 * 1024;
+                                    else if (gr.ToLower() == "k")
+                                        size_byte = double.Parse(z, CultureInfo.InvariantCulture) * 1024;
+                                }
+                                else
+                                {
+                                    z = t.Value;
+                                    size_byte = double.Parse(z, CultureInfo.InvariantCulture);
+                                }
+                                c = true;
+                                //else if(string.IsNullOrEmpty(gr))
+                            }
+                            if (a && b && c)
+                            {
+                                ImgItemInfo iii = new ImgItemInfo(nm, dt, size_byte);
                                 ListIII.Add(iii);
                                 nm = string.Empty;
                                 dt = new DateTime();
-                                a = b = false;
+                                size_byte = 0;
+                                a = b = c = false;
                             }
                         }
                         i++;
@@ -210,43 +237,80 @@ namespace RtrsMapService_User
                 return;
             else
                 fl_isrun = true;
-            var qq = Path.GetPathRoot(LoadItem.ExPath);
-            var dd = DriveInfo.GetDrives().ToList();
-            var a = dd.Where(w => w.Name == qq).First();
-            if (MessageBox.Show($"Текущая информация о мультиплексах будет стерта! Продолжить?", "Внимание", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
+            bool use_not_full = false;
+
+
+            /* ситуации 
+             * нет id трансмиттера следовательно и объекта
+             * есть id нет изображения (или самого объекта?)
+             */
+            var notfulldata = ActualData.li.Where(q => q.id_trans1 == 0 || q.id_trans2 == 0).ToList();
+            notfulldata.AddRange(ActualData.li.Where(q => q.map_trans1 == null || q.map_trans2 == null).ToList());
+            notfulldata.AddRange(ActualData.li.Where(q => (q.map_trans1 != null && string.IsNullOrEmpty(q.map_trans1.map))
+            || (q.map_trans2 != null && string.IsNullOrEmpty(q.map_trans2.map))).ToList());
+            notfulldata = notfulldata.Distinct().ToList();
+            if (MessageBox.Show($"Найдено {notfulldata.Count} неполных записей!\nПопробовать загрузить их?", "Внимание", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
             {
-                return;
+                use_not_full = true;
             }
             else
             {
-                ActualData.li.ForEach(Q => Q.ClearMapObj());
-                RefreshDataGridView();
+                if (MessageBox.Show($"Текущая информация о мультиплексах будет стерта! Продолжить?", "Внимание", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
+                {
+                    return;
+                }
+                else
+                {
+                    ActualData.li.ForEach(Q => Q.ClearMapObj());
+                    RefreshDataGridView();
+                }
             }
-            if (MessageBox.Show($"Для загрузки базы потребуется около 500 МБ, доступно {a.AvailableFreeSpace / (1024 * 1024)} MB\nПродолжить загрузку?", "Внимание", MessageBoxButtons.YesNo) != DialogResult.Yes)
+            int cnt = ActualData.li.Count();
+            List<LoadItem> t_s;
+            List<LoadItem> t_e;
+            if (use_not_full)
+            {
+                cnt = notfulldata.Count();
+                t_s = notfulldata.Where((c, i) => i % 2 == 0).ToList();//(q => q.id <= cnt / 2).ToList();
+                t_e = notfulldata.Where((c, i) => i % 2 != 0).ToList();//(q => q.id > cnt / 2).ToList();
+            }
+            else
+            {
+                //t_s = ActualData.li.Where();
+                t_s = ActualData.li.Where((c, i) => i % 2 == 0).ToList();
+                t_e = ActualData.li.Where((c, i) => i % 2 != 0).ToList();
+            }
+
+
+
+
+            //KATALOG INFO
+            var qq = Path.GetPathRoot(LoadItem.ExPath);
+            var dd = DriveInfo.GetDrives().ToList();
+            var a = dd.Where(w => w.Name == qq).First();
+
+            DirectoryInfo di = new DirectoryInfo(LoadItem.ImgMapPath);
+            var cursize = di.EnumerateFiles("*", SearchOption.AllDirectories).Sum(fi => fi.Length);
+            cursize = cursize / 1024 / 1024;
+
+            _Timer.Start();
+            progressBar1.Value = 0;
+            progressBar1.Maximum = cnt + 1;
+            setlog("Загрузка информации начата. Время начала: " + DateTime.Now.ToString() + Environment.NewLine);
+
+            setlog("Получение базы изображений..." + Environment.NewLine);
+            ServerImgList = await ForImgCheckLoader();
+            var sum = ServerImgList.Sum(q => q.size_mb);
+            if (MessageBox.Show($"Размер банка фотографий = {(int)sum} MB\nРазмер локальной папки с изображениями { cursize } MB\nДоступно {a.AvailableFreeSpace / (1024 * 1024)} MB\nПродолжить загрузку?",
+                "Внимание", MessageBoxButtons.YesNo,MessageBoxIcon.Warning) != DialogResult.Yes)
             {
                 return;
             }
-            _Timer.Start();
-            progressBar1.Value = 0;
-            progressBar1.Maximum = ActualData.li.Count + 1;
-            setlog("Загрузка информации начата. Время начала: " + DateTime.Now.ToString() + Environment.NewLine);
-
-
-            //#region DEBUG
-            //if (!File.Exists(LoadItem.ExPath + "\\some.json"))
-            //{
-            ServerImgList = await ForImgCheckLoader();
-            TextWriter tr = new StreamWriter(LoadItem.ExPath + "\\some.json", false);
-            tr.Write(JsonConvert.SerializeObject(ServerImgList));
-            tr.Flush();
-            tr.Close();
-            //}
-            //else
-            //{
-            //    TextReader tr = new StreamReader(LoadItem.ExPath + "\\some.json", false);
-            //    ServerImgList = JsonConvert.DeserializeObject<List<ImgItemInfo>>(tr.ReadToEnd());
-            //}
-            //#endregion
+            //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! UDALIT'!
+            //TextWriter tr = new StreamWriter(LoadItem.ExPath + "\\some.json", false);
+            //tr.Write(JsonConvert.SerializeObject(ServerImgList));
+            //tr.Flush();
+            //tr.Close();
 
             setProgress();
             setlog($"Загружен список изображений с сервера. Количесвто изображений {ServerImgList.Count}" + Environment.NewLine);
@@ -255,9 +319,6 @@ namespace RtrsMapService_User
                 Directory.CreateDirectory(LoadItem.ImgMapPath);
             }
             StartTime = DateTime.Now;
-            var cnt = ActualData.li.Count();
-            var t_s = ActualData.li.Where(q => q.id <= cnt / 2).ToList();
-            var t_e = ActualData.li.Where(q => q.id > cnt / 2).ToList();
             await Task.WhenAll(LoadWorkerRunner(t_s), LoadWorkerRunner(t_e));
             ActualData.PlexLoad = DateTime.Now;
             last_multi_download.Text = ActualData.PlexLoad.ToString();
@@ -795,21 +856,25 @@ namespace RtrsMapService_User
         }
         private void AdminForm_Ev_ResponseServerState(SimpleHTTPServer state)
         {
-            if (state.State)
-            {
-                status_server_txt.Text = "Запущен";
-                ServPort = state.Port;
-                port_txt.TextChanged -= port_txt_TextChanged;
-                port_txt.Text = ServPort.ToString();
-                port_txt.TextChanged += port_txt_TextChanged;
-                port_txt.ReadOnly = true;
-                start_server_man.Enabled = false;
-            }
-            else
-            {
-                status_server_txt.Text = "Не запущен";
-                start_server_man.Enabled = false;
-            }
+            BeginInvoke(new Action(() =>
+                {
+                    if (state.State)
+                    {
+                        status_server_txt.Text = "Запущен";
+                        ServPort = state.Port;
+                        port_txt.TextChanged -= port_txt_TextChanged;
+                        port_txt.Text = ServPort.ToString();
+                        port_txt.TextChanged += port_txt_TextChanged;
+                        port_txt.ReadOnly = true;
+                        start_server_man.Enabled = false;
+                    }
+                    else
+                    {
+                        status_server_txt.Text = "Не запущен";
+                        start_server_man.Enabled = true;
+                    }
+                }));
+
         }
 
         private void port_txt_TextChanged(object sender, EventArgs e)

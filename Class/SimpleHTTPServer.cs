@@ -146,8 +146,9 @@ namespace RtrsMapService_User.Class
         private void Listen()
         {
             bool fl_is_err = false;
+            //_port = 0;
             int clone_port = _port;
-
+           
             while (true)
             {
                 try
@@ -188,6 +189,7 @@ namespace RtrsMapService_User.Class
                 if (!fl_is_err)
                     break;
             }
+            StaticInfo.DoResponseServerState(GetState);
             while (true)
             {
                 try
